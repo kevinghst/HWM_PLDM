@@ -6,11 +6,11 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "hjepa"
+name = "pldm"
 version = "1.0.0"
 requires-python = ">=3.8"
 dynamic = ["description"]
-packages = ["hjepa", "environments"]
+packages = ["pldm", "pldm_envs"]
 
 [tool.ruff]
 target-version = "py310"

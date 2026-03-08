@@ -121,6 +121,13 @@ class NormalizedDataLoader:
 def make_dataloader(ds, loader_config, normalizer=None, suffix="", train=True):
     config = ds.config
 
+    # Some datasets (e.g., offline wall) already emit CUDA tensors.
+    # pin_memory only works for CPU tensors and will crash otherwise.
+    ds_device = getattr(ds, "device", None)
+    if ds_device is not None:
+        ds_device = torch.device(ds_device)
+    pin_memory = not (ds_device is not None and ds_device.type == "cuda")
+
     print(f"{len(ds)} samples in {suffix} dataset")
     num_workers = loader_config.num_workers if not loader_config.quick_debug else 0
     loader_kwargs = {
@@ -137,7 +144,7 @@ def make_dataloader(ds, loader_config, normalizer=None, suffix="", train=True):
             if not loader_config.quick_debug and num_workers > 0
             else None
         ),
-        "pin_memory": True,
+        "pin_memory": pin_memory,
         "worker_init_fn": _worker_init_fn if num_workers > 0 else None,
     }
 

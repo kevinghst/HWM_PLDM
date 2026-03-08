@@ -1,0 +1,126 @@
+n_steps: &n_steps 23
+val_n_steps: *n_steps
+env_name: &env_name cube-single-v0
+
+base_lr: 0.0016397
+data:
+  dataset_type: DatasetType.OgbenchManispace
+  normalize: true
+  min_max_normalize_state: false
+  ogbench_manispace_config:
+    path: /vast/wz1232/ogbench/manipulation/cube-single-noisy/cube-single-noisy-v0.npz
+    val_path: /vast/wz1232/ogbench/manipulation/cube-single-noisy/cube-single-noisy-v0-val.npz
+    n_steps: *n_steps
+    image_based: false
+epochs: 20
+eval_at_beginning: false
+eval_during_training: false
+eval_mpcs: 20
+eval_only: false
+hjepa:
+  l1_n_steps: *n_steps
+  train_l1: true
+  freeze_l1: false
+  disable_l2: true
+  level1:
+    backbone:
+      arch: ob_proprio_enc_2
+      backbone_subclass: '32-256,id' # obs enc, proprio enc
+      input_dim: 9
+      proprio_dim: 19
+      backbone_norm: layer_norm
+      final_ln: true
+    predictor:
+      predictor_arch: mlp
+      predictor_subclass: 256-256
+      z_dim: 0
+      z_min_std: 0.1
+      predictor_ln: true
+      tie_backbone_ln: true
+      dropout: 0.0
+      ensemble_size: 1
+      use_vmap: true
+    use_z_goal: false
+    action_dim: 5
+    momentum: 0
+  step_skip: 4
+load_checkpoint_path: null
+load_l1_only: false
+objectives_l1:
+  idm:
+    coeff: 0.92406
+    arch: '256'
+  action_ae:
+    recon_coeff: 1
+    kl_coeff: 1
+    uniform_prior: true
+  objectives:
+  - ObjectiveType.VICRegObs
+  - ObjectiveType.VICRegProprio
+  - ObjectiveType.PredictionObs
+  - ObjectiveType.PredictionProprio
+  vicreg_obs:
+    adjust_cov: true
+    cov_chunk_size: null
+    cov_coeff: 0.49293
+    cov_coeff_t: 0
+    projector: id
+    sim_coeff: 10
+    std_coeff: 43.499
+    std_coeff_t: 0.41289
+    sim_coeff_t: 2.7135
+  prediction_proprio:
+    global_coeff: 10
+  prediction_obs:
+    global_coeff: 10
+optimizer_type: Adam
+output_dir: test
+output_root: /scratch/sc11537/HJEPA/manispace
+eval_cfg:
+  disable_planning: false
+  env_name: *env_name
+  log_heatmap: false
+  eval_l1: true
+  eval_aae: false
+  probing:
+    visualize_probing: false
+    probe_mpc: false
+    probe_encoder: true
+    probe_wall: true
+    epochs: 5
+    epochs_enc: 5
+    full_finetune: false
+    lr: 0.0002
+    probe_targets: "locations"
+    locations:
+      arch: '64'
+    schedule: Constant
+    l1_depth: *n_steps
+    sample_timesteps: 30
+  manispace_planning:
+    levels: "holding_cube_init,ogbench_1,ogbench_2,ogbench_3,ogbench_4,ogbench_5"
+    env_name: *env_name
+    n_envs: 10
+    n_steps: 200
+    n_envs_batch_size: 20
+    visualize_planning: true
+    log_pred_dist_every: 9999999
+    plot_every: 2
+    level1:
+      planner_type: PlannerType.MPPI
+      min_step: -1
+      max_step: 1
+      clamp_actions: true
+      max_plan_length: 91
+      mppi:
+        noise_sigma: 5
+        num_samples: 500
+        lambda_: 0.0025
+        var_samples: 0
+        rollout_var_cost: 0
+quick_debug: false
+run_group: cube-single-play
+run_name: cube-single-play
+run_project: manispace
+seed: 246
+wandb: true

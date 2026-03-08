@@ -1,0 +1,16 @@
+env: maze2d_small_diverse
+num_blocks_width_in_img: 8
+n_episodes: 1000 
+train_maps_n: 10 
+episode_length: 100 
+img_size: [64, 64, 3]
+qvel_norm_prior: true 
+qvel_norm_prior_type: uniform
+action_repeat: 4 
+action_repeat_mode: id 
+resample_every: 1 
+action_noise: 0 
+sampling_mode: uniform
+max_path_len: 8 
+sparsity_low: 50 
+sparsity_high: 75

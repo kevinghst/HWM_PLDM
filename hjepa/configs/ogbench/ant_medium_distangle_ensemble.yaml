@@ -1,0 +1,177 @@
+n_steps: &n_steps 15
+val_n_steps: *n_steps
+env_name: &env_name antmaze-medium-v0
+
+base_lr: 0.0005644
+data:
+  dataset_type: DatasetType.LocoMaze
+  normalize: true
+  d4rl_config:
+    env_name: *env_name
+    random_actions: false
+    image_based: false
+    alpha: 0.6
+    batch_size: 64
+    beta: 0.4
+    crop_length: null
+    path: /vast/wz1232/ogbench/visual_ant_maze_medium_explore_5M_noise1/train
+    location_only: false
+    num_workers: 10
+    prioritized: false
+    quick_debug: false
+    n_steps: *n_steps
+    seed: 0
+    stack_states: 1
+    train: true
+    val_fraction: 0.2
+epochs: 5
+eval_at_beginning: false
+eval_during_training: false
+eval_mpcs: 20
+eval_only: false
+hjepa:
+  l1_n_steps: *n_steps
+  train_l1: true
+  freeze_l1: false
+  disable_l2: true
+  level1:
+    backbone:
+      arch: ob_proprio_enc_2
+      backbone_subclass: '32-256,id' # obs enc, proprio enc
+      input_dim: 2
+      proprio_dim: 27
+      backbone_norm: layer_norm
+      final_ln: true
+    predictor:
+      predictor_arch: mlp
+      predictor_subclass: 256-256
+      z_dim: 0
+      z_min_std: 0.1
+      predictor_ln: true
+      tie_backbone_ln: true
+      dropout: 0.0
+      ensemble_size: 5
+      use_vmap: true
+    use_z_goal: false
+    action_dim: 8
+    momentum: 0
+  step_skip: 4
+load_checkpoint_path: null
+load_l1_only: false
+objectives_l1:
+  idm:
+    coeff: 0.65081
+    arch: '256'
+  action_ae:
+    recon_coeff: 1
+    kl_coeff: 1
+    uniform_prior: true
+  objectives:
+  - ObjectiveType.VICRegObs
+  - ObjectiveType.PredictionProprio
+  - ObjectiveType.IDM
+  vicreg_obs:
+    adjust_cov: true
+    cov_chunk_size: null
+    cov_coeff: 1.0787
+    cov_coeff_t: 0
+    projector: id
+    sim_coeff: 14.793
+    std_coeff: 10.143
+    std_coeff_t: 0.54722
+    sim_coeff_t: 2.8915
+  prediction_proprio:
+    global_coeff: 2.9708
+optimizer_type: Adam
+output_dir: test
+output_root: /scratch/wz1232/HJEPA/checkpoint/visual_antmaze
+eval_cfg:
+  disable_planning: false
+  env_name: *env_name
+  log_heatmap: false
+  eval_l1: true
+  eval_aae: false
+  probing:
+    l1_depth: *n_steps
+    train_path: /vast/wz1232/ogbench/visual_ant_maze_medium_explore_5M_noise0/train
+    val_path: /vast/wz1232/ogbench/visual_ant_maze_medium_explore_5M_noise0/val_50000
+    probe_targets: 'locations,proprio_vel,proprio_pos'
+    locations:
+      arch: '64'
+    proprio_vel:
+      arch: '119-59'
+    proprio_pos:
+      arch: '119-59'
+    probe_mpc: false
+    probe_wall: false
+    probe_encoder: false
+    probe_preds: true
+    epochs: 5
+    epochs_enc: 5
+    epochs_latent: 5
+    full_finetune: false
+    lr: 0.0008
+    max_samples: 2000000
+    max_samples_enc: 2000000
+    schedule: Cosine
+    visualize_probing: true
+    load_prober: false
+  d4rl_planning:
+    n_envs: 40
+    n_envs_batch_size: 20
+    n_steps: 40
+    levels: "medium,hard"
+    easy:
+      n_steps: 40
+      n_envs: 40
+      max_plan_length: 16
+      offline_T: 12
+      plot_every: 2
+      override_config: true
+    medium:
+      n_steps: 400
+      n_envs: 40
+      max_plan_length: 16
+      offline_T: 32
+      plot_every: 20
+      override_config: true
+    hard:
+      n_steps: 2000
+      n_envs: 40
+      max_plan_length: 16
+      offline_T: 100
+      plot_every: 100
+      override_config: true
+    ogbench:
+      n_steps: 400
+      n_envs: 30
+      max_plan_length: 16
+      plot_every: 20
+      override_config: true
+    log_pred_dist_every: 9999999
+    plot_every: 2
+    img_size: 64
+    replan_every: 2
+    image_obs: false
+    stack_states: 1
+    set_full_states: false
+    data_path: "/vast/wz1232/ogbench/visual_ant_maze_medium_navigate_1M_noise0/val_50050"
+    level1:
+      planner_type: PlannerType.MPPI
+      min_step: 0
+      max_step: 1
+      clamp_actions: true
+      max_plan_length: 16
+      mppi:
+        noise_sigma: 5
+        num_samples: 500
+        lambda_: 0.0025
+        var_samples: 0
+        rollout_var_cost: 1
+        rollout_var_discount: 0.9
+quick_debug: false
+run_group: vc-maze-uniform-image-stack2_seed=246_env_medium
+run_name: vc-maze-uniform-image-stack2_seed=246_env_medium_seed=3_v2
+run_project: HJEPA-visual-antmaze
+seed: 246
+wandb: true

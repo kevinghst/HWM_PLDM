@@ -1,0 +1,9 @@
+bash_*
+*.sbatch
+logs/
+.vscode/
+checkpoint/
+*__pycache__*
+*.ipynb_checkpoints/
+*.npz
+scripts/submit_multiple_jobs.py

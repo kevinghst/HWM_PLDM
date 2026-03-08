@@ -1,0 +1,367 @@
+n_steps: 17
+val_n_steps: 17
+wandb: true
+run_name: test2
+run_group: test2
+run_project: HJEPA-wall
+output_path: /scratch/wz1232/HJEPA/checkpoint/test2
+safe_every_n_epochs: 10
+eval_mpcs: 20
+quick_debug: false
+seed: 2
+load_checkpoint_path: null
+load_l1_only: false
+freeze_l1: true
+eval_only: false
+probe_mpc: false
+epochs: 100
+base_lr: 0.1
+optimizer_type: Adam
+optimizer_schedule: Cosine
+dataset_type: Wall
+dot_config:
+  size: 10000
+  noise: 0.0
+  static_noise: 0.0
+  structured_noise: false
+  structured_noise_path: /tmp/cifar10
+  batch_size: 128
+  static_noise_speed: 0.0
+  dot_std: 1.3
+  normalize: true
+  action_noise: 1.0
+  action_bias_only: false
+  zero_action: false
+  max_step: 1.0
+  n_steps: 17
+  img_size: 28
+  train: true
+  device: cuda
+wall_config:
+  size: 10000
+  noise: 0.0
+  static_noise: 0.0
+  structured_noise: false
+  structured_noise_path: /tmp/cifar10
+  batch_size: 512
+  static_noise_speed: 0.0
+  dot_std: 1.3
+  normalize: true
+  action_noise: 1.0
+  action_bias_only: false
+  zero_action: false
+  max_step: 1.0
+  n_steps: 17
+  img_size: 28
+  train: true
+  device: cuda
+  fix_wall: true
+  fix_wall_location: null
+  fix_door_location: 5
+  fix_wall_batch_k: null
+wall_expert_config:
+  size: 10000
+  noise: 0.0
+  static_noise: 0.0
+  structured_noise: false
+  structured_noise_path: /tmp/cifar10
+  batch_size: 128
+  static_noise_speed: 0.0
+  dot_std: 1.3
+  normalize: true
+  action_noise: 0.2
+  action_bias_only: false
+  zero_action: false
+  max_step: 1.0
+  n_steps: 17
+  img_size: 28
+  train: true
+  device: cuda
+  fix_wall: true
+  fix_wall_location: null
+  fix_door_location: null
+  fix_wall_batch_k: null
+  expert_fraction: 0.5
+  max_step_expert: 2.0
+  num_workers: 16
+wall_eigenfunc_offline_config:
+  path: ???
+  num_workers: 10
+  batch_size: 1024
+  seed: 0
+  normalize: true
+  quick_debug: false
+  drop_inbetween_frames: true
+  val_fraction: 0.2
+  limit_n_eigf: null
+  train: true
+d4rl_config:
+  env_name: ???
+  num_workers: 10
+  batch_size: 1024
+  seed: 0
+  normalize: true
+  quick_debug: false
+  val_fraction: 0.2
+  train: true
+  n_steps: 17
+  location_only: false
+  path: null
+  images_path: null
+  prioritized: false
+  alpha: 0.6
+  beta: 0.4
+  crop_length: null
+  stack_states: 1
+  mixture_expert: 0.0
+d4rl_eigf_config:
+  path: ???
+  env_name: ???
+  num_workers: 10
+  batch_size: 1024
+  seed: 0
+  train: true
+  normalize: true
+  quick_debug: false
+  proprio: false
+d4rl_planning:
+  planner_type: SGD
+  sgd:
+    n_iters: 100
+    lr: 0.01
+    plan_length: 32
+    action_dim: 2
+    l2_reg: 0.0
+    action_change_reg: 0.0
+    noise_sigma: 0.0
+  mppi:
+    n_iters: 100
+    plan_length: 32
+    action_dim: 2
+    noise_sigma: 1.0
+    num_refinement_steps: 1
+    num_samples: 1024
+    lambda_: 0.001
+    batch_size: 1
+    gt_dynamics: false
+  beam_search:
+    beam_width: 20
+    lr: 0.01
+    plan_length: 200
+    action_dim: 2
+    l2_reg: 0.0
+    action_change_reg: 0.0
+    noise_sigma: 0.0
+    low_level_buffer: 50
+    low_level_obj_threshold: null
+  evaluator:
+    n_envs: 4
+    seed: 42
+    replan_every: 4
+    n_steps: 200
+    env_name: ???
+    image_obs: true
+    stack_obs: 1
+    position_only: false
+  subgoal_planning: false
+objectives_l1:
+  objectives: []
+  vicreg:
+    projector: id
+    random_projector: false
+    sim_coeff: 25.0
+    std_coeff: 25.0
+    cov_coeff: 1.0
+    std_coeff_t: 0.0
+    cov_coeff_t: 0.0
+    repr_dim: 512
+    adjust_cov: true
+    cov_chunk_size: null
+  idm:
+    coeff: 1.0
+    repr_dim: 512
+    action_dim: 2
+  laplacian:
+    random_projector: false
+    negative_coeff: 1.0
+    projector: id
+    repr_dim: 512
+    c: 1.0
+    reg: 0.0
+    discount: 0.9
+    p1_correction: false
+    p2_correction: false
+    global_coeff: 1.0
+    split_batch: false
+    predictor_coeff: 0.0
+    detach_predictor: true
+    generalized: false
+    generalized_negative: false
+    remove_d: false
+    negative_one_step: false
+    generalized_coeff_bias: 0.0
+    generalized_coeff_curve: 0.0
+  reconstruction:
+    channels: 1
+    img_size: 28
+    target_repr_dim: null
+    decoder_arch: menet5
+    rec_coeff: 1.0
+    pred_coeff: 1.0
+    repr_dim: 512
+    width_factor: 1
+    plot_every: 50000
+  kl:
+    repr_dim: 512
+    global_coeff: 1.0
+    global_prior: true
+  prediction:
+    global_coeff: 1.0
+objectives_l2:
+  objectives:
+  - VICReg
+  - KL
+  vicreg:
+    projector: '1024'
+    random_projector: false
+    sim_coeff: 0.1
+    std_coeff: 1.0
+    cov_coeff: 1.0
+    std_coeff_t: 1.0
+    cov_coeff_t: 10.0
+    repr_dim: 256
+    adjust_cov: true
+    cov_chunk_size: null
+  idm:
+    coeff: 1.0
+    repr_dim: 256
+    action_dim: 2
+  laplacian:
+    random_projector: false
+    negative_coeff: 1.0
+    projector: id
+    repr_dim: 256
+    c: 1.0
+    reg: 0.0
+    discount: 0.9
+    p1_correction: false
+    p2_correction: false
+    global_coeff: 1.0
+    split_batch: false
+    predictor_coeff: 0.0
+    detach_predictor: true
+    generalized: false
+    generalized_negative: false
+    remove_d: false
+    negative_one_step: false
+    generalized_coeff_bias: 0.0
+    generalized_coeff_curve: 0.0
+  reconstruction:
+    channels: 1
+    img_size: 28
+    target_repr_dim: null
+    decoder_arch: menet5
+    rec_coeff: 1.0
+    pred_coeff: 1.0
+    repr_dim: 512
+    width_factor: 1
+    plot_every: 50000
+  kl:
+    repr_dim: 512
+    global_coeff: 0.0012183818902625904
+    global_prior: false
+  prediction:
+    global_coeff: 1.0
+eval_at_the_end_only: true
+save_every_n_epochs: 5
+eval_every_n_epochs: 20
+hjepa:
+  level1:
+    backbone_arch: menet5
+    backbone_width_factor: 2
+    backbone_mlp: null
+    n_channels: 2
+    repr_dim: 512
+    predictor_arch: rnnV2
+    action_dim: 2
+    rnn_state_dim: 512
+    rnn_converter_arch: ''
+    z_dim: 0
+    z_min_std: 0.1
+    posterior_drop_p: 0.0
+    input_dim: null
+    momentum: 0.0
+    rnn_layers: 1
+    use_z_goal: false
+  level2:
+    backbone_arch: ''
+    backbone_width_factor: 2
+    backbone_mlp: null
+    n_channels: 2
+    repr_dim: 256
+    predictor_arch: rnnV2
+    action_dim: 0
+    rnn_state_dim: 512
+    rnn_converter_arch: ''
+    z_dim: 8
+    z_min_std: 0.1
+    posterior_drop_p: 0.25
+    input_dim: 512
+    momentum: 0.0
+    rnn_layers: 1
+    use_z_goal: false
+  step_skip: 4
+  disable_l2: false
+probing_cfg:
+  full_finetune: false
+  lr: 0.001
+  epochs: 30
+  epochs_enc: 30
+  max_samples: null
+  schedule: null
+  prober_arch: ''
+  epochs_latent: 5
+probe_latents: false
+probe_wall: true
+log_heatmap: true
+visualize_probing: true
+resume_if_possible: true
+compile_model: true
+planning:
+  n_envs: 1024
+  n_iters: 149
+  n_steps: 32
+  lr: 0.22
+  seed: 42
+  disable_planning: false
+  max_step: 2.67
+  max_plan_length: 22
+  fix_wall: true
+  repr_target: true
+  sum_all_diffs: false
+  l2_reg: 0.0
+  action_change_reg: 0.0
+  discount: 1.0
+h_wall_planning:
+  n_envs: 1024
+  n_iters_l1: 100
+  n_iters_l2: 100
+  n_steps: 32
+  lr_l1: 0.012
+  lr_l2: 0.012
+  z_reg_coeff: 0.1
+  seed: 42
+  max_step_l1: 3.0
+  max_plan_length_l2: 16
+  min_plan_length_l2: 1
+  use_positions_targets: true
+  fix_wall: true
+  repr_target: false
+  repr_target_l1: false
+  sum_all_diffs_l1: true
+  sum_all_diffs_l2: false
+  l1_goal_coeff: 0.0
+  l2_reg: 0.0
+  action_change_reg: 0.0
+  discount: 1.0
+  first_point_only: false

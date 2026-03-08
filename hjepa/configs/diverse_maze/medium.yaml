@@ -1,0 +1,165 @@
+base_lr: 0.001
+env_name: &env_name maze2d-medium-v1
+
+data:
+  dataset_type: DatasetType.D4RL
+  d4rl_config:
+    env_name: *env_name
+    random_actions: false
+    img_size: 64
+    alpha: 0.6
+    batch_size: 128
+    beta: 0.4
+    crop_length: null
+    images_path: /vast/wz1232/maze2d-medium-v1/images.npy
+    path: /vast/wz1232/maze2d-medium-v1/data.p
+    location_only: false
+    normalize: true
+    num_workers: 10
+    prioritized: false
+    quick_debug: false
+    n_steps: 17
+    seed: 0
+    stack_states: 2
+    train: true
+    val_fraction: 0.2
+epochs: 10
+eval_at_beginning: false
+eval_during_training: false
+eval_every_n_epochs: 1
+eval_mpcs: 20
+eval_only: false
+hjepa:
+  l1_n_steps: 17
+  train_l1: true
+  freeze_l1: false
+  disable_l2: true
+  level1:
+    backbone:
+      arch: resnet18
+      backbone_mlp: null
+      backbone_width_factor: 2
+      input_dim: 4
+      channels: 6
+    predictor:
+      predictor_arch: rnnV2
+      rnn_converter_arch: ''
+      rnn_layers: 1
+      rnn_state_dim: 512
+      z_dim: 0
+      z_min_std: 0.1
+    use_z_goal: false
+    action_dim: 2
+    momentum: 0
+  step_skip: 4
+load_checkpoint_path: null
+load_l1_only: false
+n_steps: 17
+objectives_l1:
+  idm:
+    action_dim: 2
+    coeff: 0.7548812317727039
+    arch: ''
+  kl:
+    global_coeff: 1
+    global_prior: true
+  laplacian:
+    c: 1
+    detach_predictor: true
+    discount: 0.9
+    generalized: false
+    generalized_coeff_bias: 0
+    generalized_coeff_curve: 0
+    generalized_negative: false
+    global_coeff: 1
+    negative_coeff: 1
+    negative_one_step: false
+    p1_correction: false
+    p2_correction: false
+    predictor_coeff: 0
+    projector: id
+    random_projector: false
+    reg: 0
+    remove_d: false
+    split_batch: false
+  objectives:
+  - ObjectiveType.VICReg
+  - ObjectiveType.IDM
+  prediction:
+    global_coeff: 1
+  reconstruction:
+    channels: 1
+    decoder_arch: menet5
+    img_size: 28
+    plot_every: 50000
+    pred_coeff: 1
+    rec_coeff: 1
+    target_repr_dim: null
+    width_factor: 1
+  vicreg:
+    adjust_cov: true
+    cov_chunk_size: null
+    cov_coeff: 1
+    cov_coeff_t: 1
+    projector: id
+    random_projector: false
+    sim_coeff: 10
+    std_coeff: 10
+    std_coeff_t: 0.1
+optimizer_type: Adam
+output_dir: medium_test
+output_root: /scratch/wz1232/HJEPA/checkpoint/medium_maze
+eval_cfg:
+  env_name: *env_name
+  log_heatmap: false
+  eval_l1: true
+  probing:
+    train_images_path: /vast/wz1232/maze2d-medium-v1/images.npy
+    train_path: /vast/wz1232/maze2d-medium-v1/data.p
+    val_images_path: /vast/wz1232/maze2d-medium-v1/images.npy
+    val_path: /vast/wz1232/maze2d-medium-v1/data.p
+    probe_mpc: false
+    probe_wall: false
+    probe_encoder: false
+    probe_preds: true
+    epochs: 5
+    epochs_enc: 5
+    epochs_latent: 5
+    full_finetune: false
+    lr: 0.0008
+    max_samples: 2000000
+    max_samples_enc: 2000000
+    prober_arch: '256'
+    schedule: Cosine
+    visualize_probing: true
+    load_prober: false
+  d4rl_planning:
+    data_path: '/vast/wz1232/maze2d-medium-v1'
+    img_size: 64
+    action_repeat: 1
+    level: "normal"
+    image_obs: true
+    n_envs: 256
+    n_envs_batch_size: 50
+    n_steps: 1000
+    position_only: false
+    replan_every: 4
+    plot_every: 16
+    seed: 42
+    stack_states: 2
+    level1:
+      planner_type: PlannerType.SGD
+      max_plan_length: 32
+      sgd:
+        action_change_reg: 0
+        l2_reg: 0
+        lr: 0.03
+        n_iters: 100
+quick_debug: false
+run_group: vc-maze-uniform-image-stack2_seed=246_env_medium
+run_name: vc-maze-uniform-image-stack2_seed=246_env_medium_seed=3_v2
+run_project: HJEPA-maze
+save_every_n_epochs: 1
+seed: 246
+val_n_steps: 17
+wandb: true

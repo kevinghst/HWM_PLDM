@@ -1,0 +1,110 @@
+n_steps: &n_steps 16
+val_n_steps: *n_steps
+env_name: &env_name cube-single-v0
+
+base_lr: 0.0008
+data:
+  normalize: true
+  min_max_normalize_state: false
+  dataset_type: DatasetType.OgbenchManispace
+  ogbench_manispace_config:
+    path: /scratch/sc11537/JEPA/datasets/manispace/cube-single-play-v0.npz
+    val_path: /scratch/sc11537/JEPA/datasets/manispace/cube-single-play-v0-val.npz
+    n_steps: *n_steps
+    image_based: false
+# epochs: 3
+epochs: 20
+eval_at_beginning: false
+eval_during_training: false
+eval_mpcs: 20
+eval_only: false
+hjepa:
+  train_l1: true
+  freeze_l1: false
+  disable_l2: true
+  l1_n_steps: *n_steps
+  level1:
+    backbone:
+      arch: mlp
+      backbone_subclass: 512-2048-512
+      backbone_mlp: null
+      backbone_norm: layer_norm #group_norm, batch_norm
+      backbone_pool: dim_reduce #dim_reduce, avg_pool
+      input_dim: 28
+      final_ln: true
+    predictor:
+      predictor_arch: mlp
+      predictor_subclass: '512-2048-512'
+      # rnn_layers: 1
+      z_dim: 0
+      z_min_std: 0.1
+      residual: true
+      predictor_ln: true
+      tie_backbone_ln: true
+    action_dim: 5
+    momentum: 0
+  step_skip: 4
+load_checkpoint_path: null
+load_l1_only: false
+objectives_l1:
+  objectives:
+  - VICReg
+  - IDM
+  vicreg:
+    projector: id
+    random_projector: false
+    sim_coeff: 1.0
+    std_coeff: 3.9843
+    cov_coeff: 6.9238
+    std_coeff_t: 0.24535
+    cov_coeff_t: 0.0
+    sim_coeff_t: 0.74242
+    cov_per_feature: false
+    adjust_cov: true
+    cov_chunk_size: null
+    std_margin: 1.0
+    std_margin_t: 1.0
+  idm:
+    coeff: 1.072
+    action_dim: 2
+    arch: '512'
+    arch_subclass: a
+    use_pred: false
+optimizer_type: Adam
+output_dir: cube-single-play
+output_root: /scratch/sc11537/HJEPA/manispace
+eval_cfg:
+  env_name: *env_name
+  log_heatmap: false
+  manispace_planning:
+    levels: "medium"
+    env_name: *env_name
+    n_envs: 100
+    n_steps: 200
+    n_envs_batch_size: 20
+    visualize_planning: false
+    level1:
+      planner_type: PlannerType.MPPI
+      mppi:
+        rollout_var_cost: 1
+        rollout_var_discount: 0.9
+  probing:
+    visualize_probing: false
+    probe_mpc: false
+    probe_encoder: true
+    probe_wall: true
+    epochs: 3
+    epochs_enc: 3
+    full_finetune: false
+    lr: 0.0002
+    probe_targets: "locations,proprio_vel"
+    locations:
+      arch: '512'
+    schedule: Constant
+    l1_depth: *n_steps
+    sample_timesteps: 30
+quick_debug: false
+run_name: cube-single-play
+run_project: manispace
+seed: 101
+wandb: true

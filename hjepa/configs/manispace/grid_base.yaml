@@ -1,0 +1,155 @@
+n_steps: &n_steps 16
+val_n_steps: *n_steps
+env_name: &env_name visual-cube-single-v0
+
+base_lr: 0.0007
+data:
+  normalize: true
+  min_max_normalize_state: false
+  dataset_type: DatasetType.OgbenchManispace
+  ogbench_manispace_config:
+    path: /scratch/us441/datasets/manispace/visual-cube-single-noisy-v0.npz
+    val_path: /scratch/us441/datasets/manispace/visual-cube-single-noisy-v0-val.npz
+    n_steps: *n_steps
+  offline_wall_config:
+    n_steps: *n_steps
+    use_offline: true
+    offline_data_path: "/scratch/us441/datasets/wall/wall-visual-config_rand_expert_40-v0.npz"
+    lazy_load: false
+    batch_size: 64
+    device: cuda
+    img_size: 65
+    train: true
+  wall_config:
+    action_bias_only: false
+    action_noise: 1
+    action_angle_noise: 0.2
+    action_step_mean: 1.0
+    action_step_std: 0.4
+    action_lower_bd: 0.2
+    action_upper_bd: 1.8
+    action_param_xy: true
+    batch_size: 64
+    device: cuda
+    dot_std: 1.3
+    border_wall_loc: 5
+    fix_wall_batch_k: null
+    fix_wall: true
+    fix_door_location: 10
+    fix_wall_location: 32
+    exclude_wall_train: ''
+    exclude_door_train: ''
+    only_wall_val: ''
+    only_door_val: ''
+    wall_padding: 20
+    door_padding: 10
+    wall_width: 3
+    door_space: 4
+    num_train_layouts: -1
+    cross_wall_rate: 0.08
+    expert_cross_wall_rate: 0
+    img_size: 65
+    max_step: 1
+    n_steps: *n_steps
+    n_steps_reduce_factor: 1
+    size: 20000
+    val_size: 10000
+    train: true
+    repeat_actions: 1
+# epochs: 3
+epochs: 10
+eval_at_beginning: false
+eval_during_training: false
+eval_mpcs: 20
+eval_only: false
+hjepa:
+  train_l1: true
+  freeze_l1: false
+  disable_l2: true
+  l1_n_steps: *n_steps
+  level1:
+    backbone:
+      arch: impala
+      backbone_subclass: i
+      backbone_mlp: null
+      backbone_norm: group_norm #group_norm, batch_norm
+      backbone_pool: dim_reduce #dim_reduce, avg_pool
+      backbone_final_fc: false
+      backbone_width_factor: 2
+      channels: 3
+      input_dim: null
+      final_ln: true
+    predictor:
+      predictor_arch: rnnV2
+      predictor_subclass: '512-512'
+      rnn_layers: 1
+      z_dim: 0
+      z_min_std: 0.1
+      residual: true
+      predictor_ln: true
+      tie_backbone_ln: true
+    action_dim: 5
+    momentum: 0
+  step_skip: 4
+load_checkpoint_path: null
+load_l1_only: false
+objectives_l1:
+  objectives:
+  - VICReg
+  - IDM
+  vicreg:
+    projector: id
+    random_projector: false
+    sim_coeff: 1.0
+    std_coeff: 3.9843
+    cov_coeff: 6.9238
+    std_coeff_t: 0.24535
+    cov_coeff_t: 0.0
+    sim_coeff_t: 0.74242
+    cov_per_feature: false
+    adjust_cov: true
+    cov_chunk_size: null
+    std_margin: 1.0
+    std_margin_t: 1.0
+  idm:
+    coeff: 1.072
+    action_dim: 2
+    arch: '512'
+    arch_subclass: a
+    use_pred: false
+optimizer_type: Adam
+output_dir: test
+output_root: /scratch/wz1232/HJEPA/checkpoint
+eval_cfg:
+  env_name: *env_name
+  log_heatmap: false
+  manispace_planning:
+    levels: "medium"
+    env_name: *env_name
+    n_envs: 100
+    n_steps: 200
+    n_envs_batch_size: 20
+    level1:
+      clamp_actions: true
+      min_step: -1
+      max_step: 1
+  probing:
+    visualize_probing: false
+    probe_mpc: false
+    probe_encoder: true
+    probe_wall: true
+    epochs: 3
+    epochs_enc: 3
+    full_finetune: false
+    lr: 0.0002
+    probe_targets: "locations,proprio_vel"
+    locations:
+      arch: '512'
+    schedule: Constant
+    l1_depth: *n_steps
+    sample_timesteps: 30
+quick_debug: false
+run_name: test
+run_project: HJEPA-wall
+seed: 101
+wandb: true

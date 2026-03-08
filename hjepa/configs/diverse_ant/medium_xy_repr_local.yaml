@@ -1,0 +1,251 @@
+n_steps: &n_steps 15
+l2_n_steps: &l2_n_steps 0
+l2_step_skip: &l2_step_skip 20
+val_n_steps: *n_steps
+env_name: &env_name ant_medium_diverse
+
+base_lr: 0.089025
+data:
+  normalize: true
+  dataset_type: DatasetType.D4RL
+  d4rl_config:
+    env_name: *env_name
+    random_actions: false
+    img_size: 64
+    alpha: 0.6
+    batch_size: 64
+    beta: 0.4
+    crop_length: null
+    images_path: /vast/wz1232/ant_diverse/ant_medium_diverse_explore_2/maps_0_19/filtered_images.npy
+    path: /vast/wz1232/ant_diverse/ant_medium_diverse_explore_2/maps_0_19/filtered_data.p
+    # images_path: /vast/wz1232/ant_diverse/ant_medium_diverse_tiny/images.npy # for debugging
+    # path: /vast/wz1232/ant_diverse/ant_medium_diverse_tiny/data.p # for debugging
+    location_only: false
+    num_workers: 10
+    prioritized: false
+    quick_debug: false
+    n_steps: *n_steps
+    l2_n_steps: *l2_n_steps
+    l2_step_skip: *l2_step_skip
+    seed: 0
+    stack_states: 1
+    train: true
+    val_fraction: 0.2
+epochs: 2
+eval_at_beginning: false
+eval_during_training: true
+eval_every_n_epochs: 1
+eval_mpcs: 20
+eval_only: false
+hjepa:
+  l1_n_steps: *n_steps
+  train_l1: true
+  freeze_l1: false
+  disable_l2: true
+  level1:
+    backbone:
+      arch: menet6
+      backbone_subclass: d4rl_c
+      backbone_mlp: null
+      backbone_width_factor: 2
+      input_dim: 4
+      channels: 3
+      final_ln: true
+      # proprio_dim: 29
+      # early_proprio_dim: 0
+      # early_proprio_encoder_arch: 'id'
+      # late_proprio_encoder_arch: 'id'
+      # late_proprio_fuse: False
+      # late_loc_encoder_arch: 'id'
+      # late_loc_fuse: False
+      late_proprio_cfg:
+        encoder_arch: 'id'
+        ignore: false
+        fuse: false
+      late_location_cfg:
+        encoder_arch: '16-32'
+        ignore: false
+        final_ln: true
+      backbone_norm: layer_norm
+      local_patch_cfg:
+        ignore: false
+        patch_type: 'dynamic'
+        encoder_arch: '128'
+      # local_patch: true
+      # local_patch_type: 'dynamic'
+      # local_patch_arch: '128'
+    predictor:
+      predictor_arch: mlp_v2
+      predictor_subclass: 256-256
+      predictor_ln: true
+      dropout: 0.0
+      tie_backbone_ln: true
+      ensemble_size: 1
+      use_vmap: true
+      residual: true
+    encode_only: false
+    use_z_goal: false
+    action_dim: 8
+    momentum: 0
+  step_skip: 4
+load_checkpoint_path: null
+load_l1_only: false
+objectives_l1:
+  objectives:
+  - ObjectiveType.VICRegObs
+  - ObjectiveType.VICRegLocation
+  - ObjectiveType.PredictionProprio
+  - ObjectiveType.PredictionRawLocation
+  vicreg_obs:
+    adjust_cov: true
+    cov_chunk_size: null
+    cov_coeff: 11.925
+    cov_coeff_t: 0
+    cov_per_feature: false
+    projector: id
+    random_projector: false
+    sim_coeff: 1
+    std_coeff: 35.026
+    std_coeff_t: 2.9199
+    sim_coeff_t: 0
+  vicreg_location:
+    adjust_cov: true
+    cov_chunk_size: null
+    cov_coeff: 11.925
+    cov_coeff_t: 0
+    cov_per_feature: false
+    projector: id
+    random_projector: false
+    sim_coeff: 1
+    std_coeff: 35.026
+    std_coeff_t: 2.9199
+    sim_coeff_t: 0
+  prediction_proprio:
+    global_coeff: 1.4108
+  prediction_raw_location:
+    global_coeff: 1.0
+objectives_l2:
+  kl:
+    global_coeff: 0.033377
+    global_prior: false
+    discrete: false
+  objectives:
+  - ObjectiveType.VICRegObs
+  - KL
+  # - ObjectiveType.PredictionProprio
+  vicreg_obs:
+    adjust_cov: true
+    cov_chunk_size: null
+    cov_coeff: 24.699
+    cov_coeff_t: 0
+    cov_per_feature: false
+    projector: id
+    random_projector: false
+    sim_coeff: 1
+    std_coeff: 46.989
+    std_coeff_t: 0.82552
+    sim_coeff_t: 0
+  prediction_proprio:
+    global_coeff: 1.4108
+optimizer_type: Adam
+output_dir: ant_medium_diverse
+output_root: /scratch/wz1232/HJEPA/checkpoint/ant_medium_diverse
+eval_cfg:
+  disable_planning: false
+  disable_l2_planning: true
+  env_name: *env_name
+  log_heatmap: false
+  eval_l1: true
+  probing:
+    l1_depth: *n_steps
+    train_images_path: /vast/wz1232/ant_diverse/ant_medium_diverse_explore_probe/no_legs/filtered_images.npy
+    train_path: /vast/wz1232/ant_diverse/ant_medium_diverse_explore_probe/no_legs/filtered_data.p
+    val_images_path: /vast/wz1232/ant_diverse/ant_medium_diverse_explore_probe_straight_50/images.npy
+    val_path: /vast/wz1232/ant_diverse/ant_medium_diverse_explore_probe_straight_50/data.p
+    probe_targets: 'locations'
+    locations:
+      arch: 'id'
+    diff_targets: 'location_component,raw_locations'
+    probe_mpc: false
+    probe_wall: false
+    probe_proprio: true
+    probe_encoder: false
+    probe_preds: true
+    epochs: 5
+    epochs_enc: 5
+    epochs_latent: 5
+    full_finetune: false
+    lr: 0.0032
+    max_samples: 2000000
+    max_samples_enc: 2000000
+    schedule: Cosine
+    visualize_probing: true
+    load_prober: false
+  d4rl_planning:
+    n_envs: 20
+    n_envs_batch_size: 16
+    n_steps: 192
+    levels: "easy"
+    easy:
+      n_steps: 350
+      n_envs: 20
+      max_plan_length: 48
+      plot_every: 14
+      min_block_radius: 1
+      max_block_radius: 1
+      override_config: true
+      # set_start_target_path: ""
+      set_start_target_path: "/vast/wz1232/ant_diverse/ant_medium_diverse_probe/trials_blockdist_1.pt"
+    log_pred_dist_every: 9999999
+    plot_every: 16
+    action_repeat: 4
+    action_repeat_mode: 'id'
+    img_size: 64
+    replan_every: 4
+    image_obs: true
+    stack_states: 1
+    data_path: '/vast/wz1232/ant_diverse/ant_medium_diverse_probe'
+    level1:
+      planner_type: PlannerType.MPPI
+      min_step: 0
+      max_step: 1
+      max_plan_length: 30
+      # cost_entity: raw_locations
+      cost_entity: location_component
+      sgd:
+        action_change_reg: 0
+        l2_reg: 0
+        lr: 0.03
+        n_iters: 200
+      mppi:
+        noise_sigma: 5
+        num_samples: 500
+        lambda_: 0.0025
+        # rollout_var_cost: 0.002 # 283 / 6144
+        rollout_var_cost: 0
+        rollout_obs_var_cost: 0
+        rollout_proprio_var_cost: 0
+        rollout_var_discount: 0.9
+    level2:
+      planner_type: PlannerType.MPPI
+      min_step: -2.5
+      max_step: 2.5
+      max_plan_length: 30
+      sgd:
+        action_change_reg: 0
+        l2_reg: 0
+        lr: 0.03
+        n_iters: 200
+      mppi:
+        noise_sigma: 5
+        num_samples: 500
+        lambda_: 0.0025
+    #d4rl specific
+    position_only: true
+quick_debug: false
+run_group: test
+run_name: test
+run_project: HJEPA-maze
+save_every_n_epochs: 1
+seed: 246
+wandb: true

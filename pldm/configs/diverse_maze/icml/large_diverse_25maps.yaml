@@ -1,21 +1,25 @@
 n_steps: &n_steps 15
 val_n_steps: *n_steps
-env_name: &env_name maze2d_small_diverse
+env_name: &env_name maze2d_large_diverse
+compile_model: False
 
-base_lr: 0.041037
+base_lr: 0.017632900482959527
 data:
   normalize: true
   dataset_type: DatasetType.D4RL
+  num_workers: 10
+  prefetch_factor: 4
+  normalizer_hardset: true
   d4rl_config:
     env_name: *env_name
     random_actions: false
-    img_size: 64
+    img_size: 98
     alpha: 0.6
     batch_size: 128
     beta: 0.4
     crop_length: null
-    images_path: /vast/wz1232/maze2d_small_diverse_5maps/images.npy
-    path: /vast/wz1232/maze2d_small_diverse_5maps/data.p
+    images_path: /scratch/wz1232/data/maze2d_large_diverse_25maps/images.npy
+    path: /scratch/wz1232/data/maze2d_large_diverse_25maps/data.p
     location_only: false
     num_workers: 10
     prioritized: false
@@ -25,7 +29,7 @@ data:
     stack_states: 1
     train: true
     val_fraction: 0.2
-epochs: 10
+epochs: 3
 eval_at_beginning: false
 eval_during_training: false
 eval_every_n_epochs: 2
@@ -68,7 +72,7 @@ load_l1_only: false
 objectives_l1:
   idm:
     action_dim: 2
-    coeff: 5.3964
+    coeff: 4.810550706458433
     arch: 'conv'
     use_pred: false
     arch_subclass: a
@@ -94,30 +98,31 @@ objectives_l1:
   vicreg_obs:
     adjust_cov: true
     cov_chunk_size: null
-    cov_coeff: 11.925
+    cov_coeff: 17.8664279184067
     cov_coeff_t: 0
     cov_per_feature: false
     projector: id
     random_projector: false
     sim_coeff: 1
-    std_coeff: 35.026
+    std_coeff: 29.409481669124336
     std_coeff_t: 2.9199
-    sim_coeff_t: 0.10193
+    sim_coeff_t: 0
   prediction_proprio:
-    global_coeff: 1.4108
+    global_coeff: 2.416154262252218
 optimizer_type: Adam
-output_dir: maze2d_small_diverse
-output_root: /scratch/wz1232/HJEPA/checkpoint/maze2d_small_diverse
+output_dir: maze2d_large_diverse
+output_root: /scratch/wz1232/HJEPA/checkpoint/maze2d_large_diverse
 eval_cfg:
+  disable_planning: false
   env_name: *env_name
   log_heatmap: false
   eval_l1: true
   probing:
     l1_depth: *n_steps
-    train_images_path: /vast/wz1232/maze2d_small_diverse/probe_train/images.npy
-    train_path: /vast/wz1232/maze2d_small_diverse/probe_train/data.p
-    val_images_path: /vast/wz1232/maze2d_small_diverse/probe_val/images.npy
-    val_path: /vast/wz1232/maze2d_small_diverse/probe_val/data.p
+    train_images_path: /scratch/wz1232/data/maze2d_large_diverse_probe/images.npy
+    train_path: /scratch/wz1232/data/maze2d_large_diverse_probe/data.p
+    val_images_path: /scratch/wz1232/data/maze2d_large_diverse_probe/images.npy
+    val_path: /scratch/wz1232/data/maze2d_large_diverse_probe/data.p
     probe_targets: 'locations'
     diff_targets: 'obs_component'
     locations:
@@ -142,27 +147,54 @@ eval_cfg:
     load_prober: false
   d4rl_planning:
     n_envs: 85
-    n_envs_batch_size: 16
+    n_envs_batch_size: 20
     n_steps: 192
-    levels: "medium"
-    medium:
-      n_steps: 200
-      n_envs: 80
-      max_plan_length: 100
+    levels: "easy,medium"
+    easy:
+      n_steps: 500
+      n_envs: 40
+      max_plan_length: 150
       plot_every: 10
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/vast/wz1232/maze2d_small_diverse/probe_train/start_target_planning_hard.pt"
+      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_5_8.pt"
+      level1:
+        mppi:
+          num_samples: 125
+    medium:
+      n_steps: 500
+      n_envs: 40
+      max_plan_length: 200
+      plot_every: 10
+      min_block_radius: 4
+      max_block_radius: 9999
+      override_config: true
+      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_9_12.pt"
+      level1:
+        mppi:
+          num_samples: 250
+    hard:
+      n_steps: 500
+      n_envs: 40
+      max_plan_length: 250
+      plot_every: 10
+      min_block_radius: 4
+      max_block_radius: 9999
+      override_config: true
+      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_13_16.pt"
+      level1:
+        mppi:
+          num_samples: 250
     log_pred_dist_every: 9999999
     plot_every: 16
     action_repeat: 4
     action_repeat_mode: 'id'
-    img_size: 64
+    img_size: 98
     replan_every: 4
     image_obs: true
     stack_states: 1
-    data_path: '/vast/wz1232/maze2d_small_diverse/probe_train'
+    data_path: '/scratch/wz1232/data/maze2d_large_diverse_probe/'
     level1:
       planner_type: PlannerType.MPPI
       min_step: 0
@@ -175,14 +207,14 @@ eval_cfg:
         n_iters: 200
       mppi:
         noise_sigma: 5
-        num_samples: 500
+        num_samples: 125
         lambda_: 0.0025
     #d4rl specific
     position_only: true
 quick_debug: false
 run_group: test
 run_name: test
-run_project: HJEPA-maze
+run_project: HJEPA-maze-v3
 save_every_n_epochs: 1
 seed: 246
 wandb: true

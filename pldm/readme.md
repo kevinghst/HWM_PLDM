@@ -1,25 +1,31 @@
-## Two rooms
-
-The following command runs JEPA training on dataset_size=3M, sequence_length=17. Full list of configs can be found in `configs/wall/icml/`. Change the `config` field to replicate other experiments from the paper.
-
-```
-python train.py --config configs/wall/icml/seqlen90_3M.yaml
-```
-
-
-Yaml files override each other if they share values, with the last element in the list overriding last.
-Values list allows to modify default or loaded configs. To change the learning rate and batch size for `fixed_wall.yaml`, you can do:
-```
-python train.py --config configs/wall/icml/seqlen90_3M.yaml --values base_lr=0.01 data.offline_wall_config.batch_size=128
-```
-
 ## Diverse Mazes
 
-The following command runs JEPA training on the 5 maps setting. Full list of configs can be found in `configs/diverse_maze/icml/`. 
+First, download the pretrained level-1 world model weights by running 
+```
+python scripts/download_ckpt_from_hf.py --out-dir <repo_root>/pretrained
+```
+
+To train the level-2 world model on the large-maze setting, run:
 
 ```
-python train.py --config configs/diverse_maze/icml/small_diverse_5maps.yaml
+python train.py --config configs/diverse_maze/icml/large_diverse_25maps_l2.yaml
 ```
+
+Evaluation runs automatically at the end of the training script. If you want to evaluate a trained model later, run:
+
+```
+python train.py --config configs/diverse_maze/icml/large_diverse_25maps_l2.yaml --values eval_only=true eval_cfg.probing.load_prober=true load_l1_only=false load_checkpoint_path={output_root}/{output_dir}/___.ckpt
+```
+
+If you prefer to train the level-1 world model from scratch, run:
+
+```
+python train.py --config configs/diverse_maze/icml/large_diverse_25maps.yaml
+```
+
+Then update `load_checkpoint_path` in `configs/diverse_maze/icml/large_diverse_25maps_l2.yaml` to point to your trained level-1 checkpoint.
+
+After that, run the level-2 training command above.
 
 ## Hyperparameter tuning
 

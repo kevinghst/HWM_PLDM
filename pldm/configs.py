@@ -25,7 +25,7 @@ class ConfigBase:
     @classmethod
     def parse_from_file(cls, path: str):
         oc = OmegaConf.load(path)
-        return cls.parse_from_dict(OmegaConf.to_container(oc))
+        return cls.parse_from_dict(OmegaConf.to_container(oc, resolve=True))
 
     @classmethod
     def parse_from_command_line_deprecated(cls):
@@ -294,7 +294,7 @@ def omegaconf_parse_files_vals(cls, files_paths: List[str], dotlist: List[str]):
         configs.append(OmegaConf.load(path))
     configs.append(OmegaConf.from_dotlist(dotlist))
     omega_config = OmegaConf.merge(*configs)
-    res = cls.parse_from_dict(OmegaConf.to_container(omega_config))
+    res = cls.parse_from_dict(OmegaConf.to_container(omega_config, resolve=True))
     return res
 
 
@@ -309,4 +309,4 @@ def combine_dataclass_dict(dcls, c_dict):
     config = OmegaConf.create(dataclasses.asdict(dcls))
     for k, v in c_dict.items():
         OmegaConf.update(config, k, v)
-    return dcls.parse_from_dict(OmegaConf.to_container(config))
+    return dcls.parse_from_dict(OmegaConf.to_container(config, resolve=True))

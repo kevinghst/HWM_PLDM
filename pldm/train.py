@@ -112,6 +112,7 @@ class TrainConfig(ConfigBase):
     optimizer_type: OptimizerType = OptimizerType.LARS
     optimizer_schedule: LRSchedule = LRSchedule.Cosine
     train_l1: bool = True
+    root_path: Optional[str] = None
 
     data: DataConfig = DataConfig()
 

@@ -8,7 +8,6 @@ from pldm.probing.evaluator import ProbingConfig, ProbingEvaluator
 from pldm.data.enums import ProbingDatasets, DatasetType
 from pldm.planning.d4rl.enums import D4RLMPCConfig, HierarchicalD4RLMPCConfig
 from pldm.planning.enums import LevelConfig, MPCConfig
-from pldm.planning.diverse_ant.mpc import DiverseAntMPCEvaluator
 from omegaconf import MISSING
 
 from pldm_envs.utils.normalizer import Normalizer

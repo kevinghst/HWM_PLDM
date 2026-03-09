@@ -2,16 +2,8 @@ from dataclasses import dataclass, field
 import enum
 from typing import List
 
-from pldm.objectives.laplacian import (
-    LaplacianObjective,
-    LaplacianObjectiveConfig,
-)  # noqa
 from pldm.objectives.vicreg import VICRegObjective, VICRegObjectiveConfig  # noqa
 from pldm.objectives.idm import IDMObjective, IDMObjectiveConfig  # noqa
-from pldm.objectives.reconstruction import (
-    ReconstructionObjective,
-    ReconstructionObjectiveConfig,
-)
 from pldm.objectives.action_ae import AAEObjective, AAEObjectiveConfig
 from pldm.objectives.aae_probe import AAEProbeObjective, AAEProbeConfig
 from pldm.objectives.aae_probe_chunk import AAEProbeChunkObjective, AAEProbeChunkConfig
@@ -28,9 +20,7 @@ class ObjectiveType(enum.Enum):
     RSSM = enum.auto()
     SimCLR = enum.auto()
     HJEPA = enum.auto()
-    Reconstruction = enum.auto()
     IDM = enum.auto()
-    Laplacian = enum.auto()
     KL = enum.auto()
     Prediction = enum.auto()
     PredictionObs = enum.auto()
@@ -51,8 +41,6 @@ class ObjectivesConfig:
     vicreg_proprio: VICRegObjectiveConfig = VICRegObjectiveConfig()
     vicreg_location: VICRegObjectiveConfig = VICRegObjectiveConfig()
     idm: IDMObjectiveConfig = IDMObjectiveConfig()
-    laplacian: LaplacianObjectiveConfig = LaplacianObjectiveConfig()
-    reconstruction: ReconstructionObjectiveConfig = ReconstructionObjectiveConfig()
     kl: KLObjectiveConfig = KLObjectiveConfig()
     prediction: PredictionObjectiveConfig = PredictionObjectiveConfig()
     prediction_obs: PredictionObjectiveConfig = PredictionObjectiveConfig()
@@ -106,18 +94,6 @@ class ObjectivesConfig:
             elif objective_type == ObjectiveType.IDM:
                 objectives.append(
                     IDMObjective(self.idm, name_prefix=name_prefix, repr_dim=repr_dim)
-                )
-            elif objective_type == ObjectiveType.Laplacian:
-                objectives.append(
-                    LaplacianObjective(
-                        self.laplacian, name_prefix=name_prefix, repr_dim=repr_dim
-                    )
-                )
-            elif objective_type == ObjectiveType.Reconstruction:
-                objectives.append(
-                    ReconstructionObjective(
-                        self.reconstruction, name_prefix=name_prefix, repr_dim=repr_dim
-                    )
                 )
             elif objective_type == ObjectiveType.KL:
                 objectives.append(KLObjective(self.kl, name_prefix=name_prefix))

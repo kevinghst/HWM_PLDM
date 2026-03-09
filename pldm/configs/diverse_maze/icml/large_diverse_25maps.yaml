@@ -86,15 +86,6 @@ objectives_l1:
   probe:
     coeff: 1
     arch_subclass: 'b'
-  reconstruction:
-    channels: 1
-    decoder_arch: menet5
-    img_size: 28
-    plot_every: 50000
-    pred_coeff: 1
-    rec_coeff: 1
-    target_repr_dim: null
-    width_factor: 1
   vicreg_obs:
     adjust_cov: true
     cov_chunk_size: null

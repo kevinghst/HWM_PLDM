@@ -29,8 +29,6 @@ class Datasets(NamedTuple):
 @dataclass
 class DataConfig(ConfigBase):
     dataset_type: DatasetType = DatasetType.Single
-    dot_config: DotDatasetConfig = DotDatasetConfig()
-    # if "AMD" not in torch.cuda.get_device_name(0):
     d4rl_config: D4RLDatasetConfig = D4RLDatasetConfig()
 
     normalize: bool = False

@@ -173,8 +173,6 @@ class TrainConfig(ConfigBase):
 
             # General stuff
             self.eval_cfg.aae_samples = 100
-            self.objectives_l1.reconstruction.plot_every = 10
-            self.objectives_l2.reconstruction.plot_every = 10
 
         # D4RL stuff
         if self.hjepa.level1.backbone.arch in ["resnet18", "menet5"]:

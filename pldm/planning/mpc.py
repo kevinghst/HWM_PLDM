@@ -4,7 +4,6 @@ from pldm.models.hjepa import HJEPA
 from pldm_envs.utils.normalizer import Normalizer
 from pldm.planning.planners.enums import PlannerType
 from pldm.planning.planners.mppi_planner import MPPIPlanner
-from pldm.planning.planners.sgd_planner import SGDPlanner
 from pldm.planning.planners.two_lvl_planner import TwoLvlPlanner
 from pldm.planning.utils import normalize_actions
 from abc import ABC
@@ -147,16 +146,6 @@ class MPCEvaluator(ABC):
                 projected_cost=config.projected_cost,
                 cost_entity=config.cost_entity,
                 cost_dim_range=config.cost_dim_range,
-            )
-        elif config.planner_type == PlannerType.SGD:
-            planner = SGDPlanner(
-                config.sgd,
-                model=model,
-                normalizer=self.normalizer,
-                objective=objective,
-                l1=not l2,
-                prober=prober,
-                action_normalizer=action_normalizer,
             )
         else:
             raise NotImplementedError(f"Unknown planner type {config.planner_type}")
@@ -372,11 +361,6 @@ class MPCEvaluator(ABC):
             loss_history: list of a_T (n_iters,)
         """
         orig_training_state = self.model.training
-        if (
-            self.config.level1.planner_type == PlannerType.SGD
-            or self.config.level2.planner_type == PlannerType.SGD
-        ):
-            self.model.train(True)
 
         targets = [e.get_target() for e in envs]
         targets = torch.from_numpy(np.stack(targets))

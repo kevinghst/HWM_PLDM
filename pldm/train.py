@@ -171,9 +171,6 @@ class TrainConfig(ConfigBase):
                 level_cfg.max_plan_length_l2 = 3
                 level_cfg.plot_every = 1
 
-            # General stuff
-            self.eval_cfg.aae_samples = 100
-
         # D4RL stuff
         if self.hjepa.level1.backbone.arch in ["resnet18", "menet5"]:
             self.eval_cfg.d4rl_planning.image_obs = True
@@ -184,9 +181,6 @@ class TrainConfig(ConfigBase):
         # )
         self.eval_cfg.d4rl_planning.stack_states = self.data.d4rl_config.stack_states
         self.eval_cfg.d4rl_planning.img_size = self.data.d4rl_config.img_size
-        self.hjepa.level1.action_ae.chunk_on_fly = (
-            not self.data.d4rl_config.chunked_actions
-        )
 
         # general
         self.val_n_steps = self.n_steps
@@ -218,18 +212,6 @@ class TrainConfig(ConfigBase):
             if os.path.exists(test_dir):
                 shutil.rmtree(test_dir)
 
-        if self.hjepa.level1.action_ae.arch == "id":
-            self.objectives_l1.idm.action_dim = self.hjepa.level1.action_dim
-        else:
-            self.objectives_l1.idm.action_dim = self.hjepa.level1.action_ae.latent_dim
-
-        self.objectives_l1.aae_probe.latent_dim = self.hjepa.level1.action_ae.latent_dim
-        self.objectives_l1.aae_probe.chunk_size = self.hjepa.level1.action_ae.chunk_size
-        self.objectives_l1.aae_probe_chunk.latent_dim = (
-            self.hjepa.level1.action_ae.latent_dim
-        )
-
-
 class Trainer:
     def __init__(self, config: TrainConfig):
         self.config = config
@@ -253,9 +235,6 @@ class Trainer:
             config.data,
             probing_cfg=config.eval_cfg.probing,
             disable_l2=config.hjepa.disable_l2,
-            eval_aae=config.eval_cfg.eval_aae,
-            aae_chunk_size=config.hjepa.level1.action_ae.chunk_size,
-            aae_samples=config.eval_cfg.aae_samples,
         ).create_datasets()
 
         self.datasets = datasets
@@ -689,7 +668,6 @@ class Trainer:
                 epoch=self.epoch,
                 probing_datasets=self.datasets.probing_datasets,
                 l2_probing_datasets=self.datasets.l2_probing_datasets,
-                aae_dataset=self.datasets.aae_dataset,
                 load_checkpoint_path=self.config.load_checkpoint_path,
                 output_path=self.config.output_path,
             )

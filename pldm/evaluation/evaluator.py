@@ -28,8 +28,6 @@ class EvalConfig(ConfigBase):
     d4rl_planning: D4RLMPCConfig = D4RLMPCConfig()
     h_d4rl_planning: HierarchicalD4RLMPCConfig = HierarchicalD4RLMPCConfig()
     manispace_planning: MPCConfig = MPCConfig()
-    eval_aae: bool = False
-    aae_samples: int = 2000
     l2_latent_bounds_percentile: float = 0
 
     def __post_init__(self):
@@ -48,7 +46,6 @@ class Evaluator:
         epoch: int,
         probing_datasets: Optional[ProbingDatasets],
         l2_probing_datasets: Optional[ProbingDatasets],
-        aae_dataset: Optional[DatasetType],
         load_checkpoint_path: "",
         output_path: "",
         data_config=None,
@@ -60,7 +57,6 @@ class Evaluator:
         self.epoch = epoch
         self.output_path = output_path
         self.data_config = data_config  # wall_config
-        self.aae_dataset = aae_dataset
 
         self.probing_evaluator = ProbingEvaluator(
             model=self.model,
@@ -348,11 +344,6 @@ class Evaluator:
         log_dict = {}
 
         self.probers, self.probers_l2 = self.evaluate_loc_probing()
-
-        # AAE Evaluation
-        if self.config.eval_aae:
-            aae_evaluator = self._create_aae_evaluator()
-            aae_evaluator.evaluate()
 
         # Planning
         if not self.config.disable_planning and self.config.eval_l1:

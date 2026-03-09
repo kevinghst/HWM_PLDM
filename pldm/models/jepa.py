@@ -6,11 +6,9 @@ import torch
 from pldm.configs import ConfigBase
 from pldm.models.encoders.enums import BackboneConfig, BackboneOutput
 from pldm.models.predictors.enums import PredictorOutput, PredictorConfig
-from pldm.models.action_ae import ActionAEConfig, ActionAEResult
 from functools import reduce
 import operator
 from pldm.models.encoders.encoders import build_backbone
-from pldm.models.action_ae import build_action_ae
 from pldm.models.predictors.predictors import build_predictor
 
 
@@ -18,7 +16,6 @@ from pldm.models.predictors.predictors import build_predictor
 class JEPAConfig(ConfigBase):
     backbone: BackboneConfig = BackboneConfig()
     predictor: PredictorConfig = PredictorConfig()
-    action_ae: ActionAEConfig = ActionAEConfig()
 
     action_dim: int = 2
 
@@ -40,7 +37,6 @@ class ForwardResult(NamedTuple):
     ema_backbone_output: BackboneOutput
     pred_output: PredictorOutput
     actions: torch.Tensor
-    aae_output: Optional[ActionAEResult] = None
 
 
 class JEPA(torch.nn.Module):
@@ -121,14 +117,7 @@ class JEPA(torch.nn.Module):
             self.config.action_dim and self.config.predictor.z_dim
         )
 
-        self.action_ae = build_action_ae(
-            config.action_ae,
-        )
-
-        if self.action_ae is not None:
-            predictor_input_dim = self.action_ae.config.latent_dim
-        else:
-            predictor_input_dim = self.config.action_dim + self.config.predictor.z_dim
+        predictor_input_dim = self.config.action_dim + self.config.predictor.z_dim
 
         self.config.predictor.rnn_state_dim = self.repr_dim
 
@@ -152,9 +141,7 @@ class JEPA(torch.nn.Module):
         self.using_location = self.backbone.using_location
 
     def subsampling_ratio(self):
-        if self.action_ae is not None and self.config.action_ae.chunk_on_fly:
-            return self.config.action_ae.chunk_size
-        elif self.l2 and self.step_skip:
+        if self.l2 and self.step_skip:
             return self.step_skip
         else:
             return 1
@@ -230,26 +217,6 @@ class JEPA(torch.nn.Module):
         actions:
             (T-1)xBxA
         """
-        # action VAE
-        if self.action_ae is None:
-            aae_output = None
-        else:
-            if self.config.action_ae.chunk_on_fly:
-                proprio_states = torch.cat([proprio_pos, proprio_vel], dim=-1)
-            else:
-                proprio_states = torch.cat(
-                    [chunked_proprio_pos, chunked_proprio_vel], dim=-1
-                )
-
-            aae_output = self.action_ae(actions=actions, proprio_states=proprio_states)
-
-            if self.config.action_ae.chunk_on_fly:
-                # get intermediate states over chunks
-                input_states = input_states[:: self.config.action_ae.chunk_size]
-                proprio_pos = proprio_pos[:: self.config.action_ae.chunk_size]
-                proprio_vel = proprio_vel[:: self.config.action_ae.chunk_size]
-
-            actions = aae_output.latents
 
         if input_states.shape[-1] != self.repr_dim:
             if self.backbone.using_proprio:
@@ -290,7 +257,6 @@ class JEPA(torch.nn.Module):
                 ema_backbone_output=ema_backbone_output,
                 pred_output=None,
                 actions=actions,
-                aae_output=aae_output,
             )
 
         T = input_states.shape[0] - 1
@@ -310,7 +276,6 @@ class JEPA(torch.nn.Module):
             ema_backbone_output=ema_backbone_output,
             pred_output=pred_output,
             actions=actions,
-            aae_output=aae_output,
         )
 
     def update_ema(self):

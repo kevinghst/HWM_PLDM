@@ -4,9 +4,6 @@ from typing import List
 
 from pldm.objectives.vicreg import VICRegObjective, VICRegObjectiveConfig  # noqa
 from pldm.objectives.idm import IDMObjective, IDMObjectiveConfig  # noqa
-from pldm.objectives.action_ae import AAEObjective, AAEObjectiveConfig
-from pldm.objectives.aae_probe import AAEProbeObjective, AAEProbeConfig
-from pldm.objectives.aae_probe_chunk import AAEProbeChunkObjective, AAEProbeChunkConfig
 from pldm.objectives.kl import KLObjective, KLObjectiveConfig
 from pldm.objectives.prediction import PredictionObjective, PredictionObjectiveConfig
 from pldm.objectives.probe import ProbeObjective, ProbeObjectiveConfig
@@ -28,9 +25,6 @@ class ObjectiveType(enum.Enum):
     PredictionRawLocation = enum.auto()
     ProbeLocation = enum.auto()
     ProbeProprioVel = enum.auto()
-    ActionAE = enum.auto()
-    AAEProbe = enum.auto()
-    AAEProbeChunk = enum.auto()
 
 
 @dataclass
@@ -47,9 +41,6 @@ class ObjectivesConfig:
     prediction_proprio: PredictionObjectiveConfig = PredictionObjectiveConfig()
     prediction_raw_location: PredictionObjectiveConfig = PredictionObjectiveConfig()
     probe: ProbeObjectiveConfig = ProbeObjectiveConfig()
-    action_ae: AAEObjectiveConfig = AAEObjectiveConfig()
-    aae_probe: AAEProbeConfig = AAEProbeConfig()
-    aae_probe_chunk: AAEProbeChunkConfig = AAEProbeChunkConfig()
 
     def build_objectives_list(
         self,
@@ -147,27 +138,6 @@ class ObjectivesConfig:
                         repr_dim=repr_dim,
                         pred_dim=2,
                         probe_target="proprio_vel",
-                    )
-                )
-            elif objective_type == ObjectiveType.ActionAE:
-                objectives.append(
-                    AAEObjective(
-                        self.action_ae,
-                        name_prefix=name_prefix,
-                    )
-                )
-            elif objective_type == ObjectiveType.AAEProbe:
-                objectives.append(
-                    AAEProbeObjective(
-                        self.aae_probe,
-                        name_prefix=name_prefix,
-                    )
-                )
-            elif objective_type == ObjectiveType.AAEProbeChunk:
-                objectives.append(
-                    AAEProbeChunkObjective(
-                        self.aae_probe_chunk,
-                        name_prefix=name_prefix,
                     )
                 )
             else:

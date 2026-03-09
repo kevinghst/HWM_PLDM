@@ -9,3 +9,4 @@ checkpoint/
 scripts/submit_multiple_jobs.py
 pldm/pretrained/
 pldm_envs/diverse_maze/datasets
+pldm_envs/diverse_maze/data_generation/generate_all_datasets_new_test.sh

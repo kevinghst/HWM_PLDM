@@ -365,57 +365,6 @@ def log_hierarchical_planning_plots(
 
         plt.close(fig)
 
-
-def plot_aae_traj(
-    states: torch.Tensor,
-    source_loc: torch.Tensor,
-    gt_loc: torch.Tensor,
-    r_loc: torch.Tensor,
-    only_plot_final: bool = False,
-):
-    """
-    states: [BS, C, H, W] - top down view observations
-    source_loc: [BS, 2] - source location
-    gt_loc: [T, BS, 2] - subsequent ground truth locations from offline data
-    r_loc: [T, BS, 2] - unrolled locations from offline data
-    """
-
-    gt_loc = gt_loc.numpy()
-    r_loc = r_loc.numpy()
-
-    for i in range(states.shape[0]):
-        image = states[i]
-        c_gt_loc = gt_loc[:, i]
-        c_r_loc = r_loc[:, i]
-        c_source = source_loc[i]
-
-        # Create the figure
-        fig = plt.figure(figsize=(8, 8))
-        ax = fig.add_subplot(111)
-
-        # Plot the grayscale image
-        ax.imshow(image.squeeze(0).numpy(), cmap="gray", origin="lower")
-
-        # Plot the source (initial) point
-        ax.plot(c_source[0], c_source[1], "go", markersize=3)  # Green dot
-
-        if only_plot_final:
-            ax.plot(
-                c_gt_loc[-1][0], c_gt_loc[-1][1], "o", color="orange", markersize=3
-            )  # Orange dot
-            ax.plot(c_r_loc[-1][0], c_r_loc[-1][1], "ro", markersize=3)  # Red dot
-        else:
-            for j in range(0, c_gt_loc.shape[0]):
-                ax.plot(
-                    c_gt_loc[j][0], c_gt_loc[j][1], "o", color="orange", markersize=3
-                )
-                ax.plot(c_r_loc[j][0], c_r_loc[j][1], "ro", markersize=3)
-
-        Logger.run().log_figure(fig, f"aae_rollout/{i}")
-
-        plt.close(fig)
-
-
 def log_l1_planning_loss(result, prefix: str = "wall_"):
     logger = Logger.run()
     steps = [0, len(result.loss_history) // 2]

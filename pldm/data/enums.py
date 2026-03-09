@@ -23,7 +23,6 @@ class Datasets(NamedTuple):
     val_ds: DatasetType
     probing_datasets: Optional[ProbingDatasets] = None
     l2_probing_datasets: Optional[ProbingDatasets] = None
-    aae_dataset: Optional[DatasetType] = None
 
 
 @dataclass

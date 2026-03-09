@@ -4,10 +4,10 @@
 PROJECT_ROOT=/scratch/wz1232/HWM_PLDM
 
 # Generate dataset for 25maps setting.
-python generate_data.py --output_path ${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_25maps --config ${PROJECT_ROOT}/pldm_envs/diverse_maze/configs/maze2d_large/25maps.yaml
+python data_generation/generate_data.py --output_path ${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_25maps --config ${PROJECT_ROOT}/pldm_envs/diverse_maze/configs/maze2d_large/25maps.yaml
 
 # Generate dataset for OOD evaluation (probe) setting.
-python generate_data.py --output_path ${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/ --config ${PROJECT_ROOT}/pldm_envs/diverse_maze/configs/maze2d_large/probe.yaml --exclude_map_path ${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_25maps/train_maps.pt
+python data_generation/generate_data.py --output_path ${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/ --config ${PROJECT_ROOT}/pldm_envs/diverse_maze/configs/maze2d_large/probe.yaml --exclude_map_path ${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_25maps/train_maps.pt
 
 DATA_PATHS=(
     "${PROJECT_ROOT}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_25maps"

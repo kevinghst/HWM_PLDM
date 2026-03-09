@@ -2,7 +2,7 @@
 
 First, download the pretrained level-1 world model weights by running 
 ```
-python scripts/download_ckpt_from_hf.py --out-dir <repo_root>/pretrained
+python download_ckpt_from_hf.py --out-dir <repo_root>/pldm/pretrained
 ```
 
 To train the level-2 world model on the large-maze setting, run:

@@ -7,3 +7,5 @@ checkpoint/
 *.ipynb_checkpoints/
 *.npz
 scripts/submit_multiple_jobs.py
+pldm/pretrained/
+pldm_envs/diverse_maze/datasets

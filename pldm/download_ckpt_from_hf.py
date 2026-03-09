@@ -38,7 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--out-dir",
         default=None,
-        help="Output directory (default: <repo_root>/pretrained)",
+        help="Output directory (default: <repo_root>/pldm/pretrained)",
     )
     return parser.parse_args()
 

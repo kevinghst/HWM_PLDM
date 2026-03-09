@@ -53,7 +53,6 @@ class MPCConfig(ConfigBase):
     easy: LevelConfig = LevelConfig()
     medium: LevelConfig = LevelConfig()
     hard: LevelConfig = LevelConfig()
-    ogbench: LevelConfig = LevelConfig()
 
     # below used for hierarchy only:
     mock_l1: bool = False

@@ -5,17 +5,13 @@ from dataclasses import dataclass
 import dataclasses
 
 from pldm.probing.evaluator import ProbingConfig, ProbingEvaluator
-from pldm.planning.wall.enums import WallMPCConfig, HierarchicalWallMPCConfig
 from pldm.data.enums import ProbingDatasets, DatasetType
 from pldm.planning.d4rl.enums import D4RLMPCConfig, HierarchicalD4RLMPCConfig
 from pldm.planning.enums import LevelConfig, MPCConfig
-from pldm.planning.wall.mpc import WallMPCEvaluator
-from pldm.planning.wall.hmpc import HierarchicalWallMPCEvaluator
 from pldm.planning.diverse_ant.mpc import DiverseAntMPCEvaluator
 from omegaconf import MISSING
 
 from pldm_envs.utils.normalizer import Normalizer
-from pldm_envs.ogbench.utils import PixelMapper as VisualAntPixelMapper
 
 from pldm_envs.diverse_maze.utils import PixelMapper as D4RLPixelMapper
 import re
@@ -30,8 +26,6 @@ class EvalConfig(ConfigBase):
     log_heatmap: bool = True
     disable_planning: bool = False
     disable_l2_planning: bool = False
-    wall_planning: WallMPCConfig = WallMPCConfig()
-    h_wall_planning: HierarchicalWallMPCConfig = HierarchicalWallMPCConfig()
     d4rl_planning: D4RLMPCConfig = D4RLMPCConfig()
     h_d4rl_planning: HierarchicalD4RLMPCConfig = HierarchicalD4RLMPCConfig()
     manispace_planning: MPCConfig = MPCConfig()
@@ -40,7 +34,6 @@ class EvalConfig(ConfigBase):
     l2_latent_bounds_percentile: float = 0
 
     def __post_init__(self):
-        self.wall_planning.env_name = self.env_name
         self.d4rl_planning.env_name = self.env_name
         self.h_d4rl_planning.env_name = self.env_name
         self.manispace_planning.env_name = self.env_name
@@ -85,8 +78,6 @@ class Evaluator:
         # Get hierarchical planning config based on environment
         if "diverse" in self.config.env_name or "maze" in self.config.env_name:
             self.h_planning_config = getattr(self.config, "h_d4rl_planning", None)
-        elif self.config.env_name == "wall":
-            self.h_planning_config = self.config.h_wall_planning
         else:
             self.h_planning_config = None
 
@@ -130,10 +121,6 @@ class Evaluator:
     def _get_planning_config(self):
         if "diverse" in self.config.env_name or "maze" in self.config.env_name:
             config = self.config.d4rl_planning
-        elif self.config.env_name == "wall":
-            config = self.config.wall_planning
-        elif "cube" in self.config.env_name:
-            config = self.config.manispace_planning
         else:
             raise NotImplementedError
         return config
@@ -183,10 +170,7 @@ class Evaluator:
         return probers, probers_l2
 
     def _create_pixel_mapper(self):
-        if "ant" in self.config.env_name:
-            # TODO: maybe better way to distinguish ogbench?
-            pixel_mapper = VisualAntPixelMapper(env_name=self.config.env_name)
-        elif "diverse" in self.config.env_name or "maze2d" in self.config.env_name:
+        if "diverse" in self.config.env_name or "maze2d" in self.config.env_name:
             pixel_mapper = D4RLPixelMapper(env_name=self.config.env_name)
         else:
 
@@ -200,26 +184,6 @@ class Evaluator:
             pixel_mapper = IdPixelMapper()
 
         return pixel_mapper
-
-    def _create_aae_evaluator(self):
-        if "antmaze" in self.config.env_name:
-            from pldm.planning.ogbench.locomaze.aae_evaluator import (
-                LocoMazeAAEEvaluator,
-            )
-
-            aae_evaluator = LocoMazeAAEEvaluator(
-                epoch=self.epoch,
-                aae=self.model.level1.action_ae,
-                normalizer=self.probing_evaluator.ds.normalizer,
-                env_name=self.config.env_name,
-                ds=self.aae_dataset,
-                pixel_mapper=self.pixel_mapper,
-                quick_debug=self.quick_debug,
-            )
-        else:
-            raise NotImplementedError
-
-        return aae_evaluator
 
     def _create_l1_planning_evaluator(
         self,
@@ -267,30 +231,7 @@ class Evaluator:
             set_start_target_path=set_start_target_path,
         )
 
-        if re.match(r"^ant_.*_diverse$", self.config.env_name):
-            planning_evaluator = DiverseAntMPCEvaluator(
-                config=mpc_config,
-                normalizer=self.normalizer,
-                model=self.model,
-                pixel_mapper=self.pixel_mapper,
-                prober=self.probers["locations"],
-                prefix=f"diverse_{level}",
-                quick_debug=self.quick_debug,
-            )
-        elif "antmaze" in self.config.env_name:
-            from pldm.planning.ogbench.locomaze.mpc import LocoMazeMPCEvaluator
-
-            planning_evaluator = LocoMazeMPCEvaluator(
-                config=mpc_config,
-                normalizer=self.normalizer,
-                model=self.model,
-                pixel_mapper=self.pixel_mapper,
-                prober=self.probers["locations"],
-                prefix=f"locomaze_{level}",
-                quick_debug=self.quick_debug,
-            )
-
-        elif "diverse" in self.config.env_name or "maze2d" in self.config.env_name:
+        if "diverse" in self.config.env_name or "maze2d" in self.config.env_name:
             from pldm.planning.d4rl.mpc import MazeMPCEvaluator
 
             planning_evaluator = MazeMPCEvaluator(
@@ -300,30 +241,6 @@ class Evaluator:
                 pixel_mapper=self.pixel_mapper,
                 prober=self.probers["locations"],
                 prefix=f"d4rl_{level}",
-                quick_debug=self.quick_debug,
-            )
-        elif self.config.env_name == "wall":
-            planning_evaluator = WallMPCEvaluator(
-                config=mpc_config,
-                normalizer=self.normalizer,
-                model=self.model,
-                prober=self.probers["locations"],
-                prefix=f"wall_{level}",
-                quick_debug=self.quick_debug,
-                wall_config=dataclasses.replace(self.data_config, train=False),
-            )
-        elif "cube" in self.config.env_name:
-            from pldm.planning.ogbench.manispace.mpc import (
-                OgbenchManispaceMPCEvaluator,
-            )
-
-            planning_evaluator = OgbenchManispaceMPCEvaluator(
-                config=mpc_config,
-                normalizer=self.normalizer,
-                jepa=self.model,
-                pixel_mapper=self.pixel_mapper,
-                prober=self.probers["locations"],
-                prefix=f"cube_{level}_",
                 quick_debug=self.quick_debug,
             )
         else:
@@ -386,9 +303,7 @@ class Evaluator:
             plot_every=plot_every,
         )
 
-        if "antmaze" in self.config.env_name:
-            raise NotImplementedError
-        elif "maze2d" in self.config.env_name:
+        if "maze2d" in self.config.env_name:
             from pldm.planning.d4rl.hmpc import HierarchicalD4RLMPCEvaluator
             from pldm.planning.d4rl.enums import HierarchicalD4RLMPCConfig
 
@@ -405,18 +320,6 @@ class Evaluator:
                 ),
                 prefix=f"l2_d4rl_{level}",
                 quick_debug=self.quick_debug,
-            )
-        else:
-            planning_evaluator = HierarchicalWallMPCEvaluator(
-                config=mpc_config,
-                model=self.model,
-                prober=self.probers["locations"],
-                prober_l2=self.probers_l2["l2_locations"],
-                normalizer=self.normalizer,
-                wall_config=dataclasses.replace(self.data_config, train=False),
-                cross_wall=True,
-                quick_debug=self.quick_debug,
-                prefix=f"l2_wall_{level}",
             )
 
         return planning_evaluator

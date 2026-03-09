@@ -3,27 +3,14 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from pldm.configs import ConfigBase
 
-from pldm_envs.wall.data.offline_wall import OfflineWallDatasetConfig
-from pldm_envs.wall.data.wall import WallDatasetConfig
-from pldm_envs.wall.data.single import DotDatasetConfig
-from pldm_envs.wall.data.wall_expert import WallExpertDatasetConfig
-
 from pldm_envs.diverse_maze.enums import D4RLDatasetConfig
-
-from pldm_envs.ogbench_manispace.dataset import ManispaceDatasetConfig
 
 
 class DatasetType(Enum):
     Single = auto()
     Multiple = auto()
-    Wall = auto()
-    WallExpert = auto()
-    WallEigenfunc = auto()
     D4RL = auto()
-    D4RLEigf = auto()
-    LocoMaze = auto()
-    OgbenchManispace = auto()
-
+    
 
 class ProbingDatasets(NamedTuple):
     ds: DatasetType
@@ -43,13 +30,8 @@ class Datasets(NamedTuple):
 class DataConfig(ConfigBase):
     dataset_type: DatasetType = DatasetType.Single
     dot_config: DotDatasetConfig = DotDatasetConfig()
-    wall_config: WallDatasetConfig = WallDatasetConfig()
-    offline_wall_config: OfflineWallDatasetConfig = OfflineWallDatasetConfig()
-    wall_expert_config: WallExpertDatasetConfig = WallExpertDatasetConfig()
-
     # if "AMD" not in torch.cuda.get_device_name(0):
     d4rl_config: D4RLDatasetConfig = D4RLDatasetConfig()
-    ogbench_manispace_config: ManispaceDatasetConfig = ManispaceDatasetConfig()
 
     normalize: bool = False
     min_max_normalize_state: bool = False

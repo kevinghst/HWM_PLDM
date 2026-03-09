@@ -3,15 +3,11 @@ import numpy as np
 
 import torch
 from tqdm import tqdm
-from pldm_envs.ogbench.utils import PixelMapper as VisualAntPixelMapper
 from pldm_envs.diverse_maze.utils import PixelMapper as D4RLPixelMapper
 
 
 def create_pixel_mapper(env_name):
-    if "ant" in env_name:
-        # TODO: maybe better way to distinguish ogbench?
-        pixel_mapper = VisualAntPixelMapper(env_name=env_name)
-    elif "diverse" in env_name or "maze2d" in env_name:
+    if "diverse" in env_name or "maze2d" in env_name:
         pixel_mapper = D4RLPixelMapper(env_name=env_name)
     else:
 
@@ -28,21 +24,6 @@ def create_pixel_mapper(env_name):
 
 
 STATS = {
-    "wall": {
-        # NOTE: these values are in fact not correct but they work cuz random search
-        # was performed using these. When using correct values performance got worse.
-        # but should just perform random search over again on correct values
-        "state_mean": torch.tensor([0.0002, 0.0014]),
-        "state_std": torch.tensor([0.0034, 0.0112]),
-        "action_mean": torch.tensor([0.0120, -0.0074]),
-        "action_std": torch.tensor([0.7543, 0.7424]),
-        "location_mean": torch.tensor([31.1224, 31.3396]),
-        "location_std": torch.tensor([16.3134, 16.6708]),
-        "proprio_pos_mean": torch.tensor([0, 1]),
-        "proprio_pos_std": torch.tensor([0, 1]),
-        "proprio_vel_mean": torch.tensor([0, 1]),
-        "proprio_vel_std": torch.tensor([0, 1]),
-    },
     "maze2d_large_diverse": {
         "state_mean": torch.tensor([146.5709, 120.0509,  93.3956]),
         "state_std": torch.tensor([84.9847, 45.3689, 10.3962]),

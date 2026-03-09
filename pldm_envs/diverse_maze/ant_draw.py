@@ -80,36 +80,6 @@ def create_custom_maze2d_env(name, maze_map, max_episode_steps: int):
 
     return env
 
-
-def create_custom_antmaze_env(name, maze_map, max_episode_steps: int, no_legs: bool):
-    gymnasium_register(
-        id=name,
-        entry_point="ogbench.locomaze.maze:make_maze_env",
-        max_episode_steps=1000,
-        kwargs=dict(
-            loco_env_type="ant",
-            maze_env_type="maze",
-            maze_map=maze_map,
-            no_legs=no_legs,
-        ),
-    )
-
-    env = gymnasium.make(
-        name,
-        terminate_at_goal=False,
-        max_episode_steps=max_episode_steps,
-    )
-
-    # test
-    # env.reset()
-    # from PIL import Image
-    # obs = env.render()
-    # image = Image.fromarray(obs)
-    # image.save("ant_render_ogbench_diverse.png")'
-
-    return env
-
-
 def convert_to_binary_array(map_key):
     # Create a 2D binary numpy array by iterating over the list of strings
     binary_array = np.array(
@@ -130,14 +100,7 @@ def load_environment(
     if map_key is not None:
         maze_map = convert_to_binary_array(map_key)
 
-        if "ant" in name:
-            maze_map_list = maze_map.tolist()
-
-            env = create_custom_antmaze_env(
-                name, maze_map_list, max_episode_steps, no_legs=no_legs
-            )
-        else:
-            env = create_custom_maze2d_env(name, map_key, max_episode_steps)
+        env = create_custom_maze2d_env(name, map_key, max_episode_steps)
     else:
         with suppress_output():
             wrapped_env: gym.Wrapper = gym.make(name)

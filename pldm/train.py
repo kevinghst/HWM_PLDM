@@ -136,19 +136,6 @@ class TrainConfig(ConfigBase):
         if self.quick_debug:
             self.data.quick_debug = True
 
-            # Wall stuff
-            self.data.dot_config.size = self.data.dot_config.batch_size
-            self.data.wall_config.size = self.data.wall_config.batch_size
-            self.eval_cfg.wall_planning.n_envs = 7
-            self.eval_cfg.wall_planning.n_steps = 4
-            self.eval_cfg.wall_planning.level1.sgd.n_iters = 2
-            self.eval_cfg.h_wall_planning.n_envs = 5
-            self.eval_cfg.h_wall_planning.level1.sgd.n_iters = 10
-            self.eval_cfg.h_wall_planning.level2.sgd.n_iters = 10
-            self.eval_cfg.h_wall_planning.level2.max_plan_length = 6
-            self.eval_cfg.h_wall_planning.n_steps = 2 * self.l2_step_skip + 1
-            self.data.offline_wall_config.lazy_load = True
-
             # D4RL stuff
             levels = ['easy', 'medium', 'hard']
             self.data.d4rl_config.quick_debug = True
@@ -184,21 +171,10 @@ class TrainConfig(ConfigBase):
                 level_cfg.max_plan_length_l2 = 3
                 level_cfg.plot_every = 1
 
-            # ogbench manipulation
-            self.eval_cfg.manispace_planning.n_envs = 3
-            self.eval_cfg.manispace_planning.n_steps = 6
-            self.eval_cfg.manispace_planning.n_envs_batch_size = 2
-
             # General stuff
             self.eval_cfg.aae_samples = 100
             self.objectives_l1.reconstruction.plot_every = 10
             self.objectives_l2.reconstruction.plot_every = 10
-
-        # Wall stuff
-        self.eval_cfg.wall_planning.fix_wall = self.data.wall_config.fix_wall
-        self.data.dot_config.n_steps = self.n_steps
-        self.data.wall_config.n_steps = self.n_steps
-        self.eval_cfg.wall_planning.padding = self.data.wall_config.border_wall_loc
 
         # D4RL stuff
         if self.hjepa.level1.backbone.arch in ["resnet18", "menet5"]:
@@ -217,8 +193,6 @@ class TrainConfig(ConfigBase):
         # general
         self.val_n_steps = self.n_steps
         self.eval_cfg.eval_l2 = not self.hjepa.disable_l2
-        self.eval_cfg.wall_planning.seed = self.seed
-        self.eval_cfg.h_wall_planning.seed = self.seed
         self.eval_cfg.d4rl_planning.seed = self.seed
         self.eval_cfg.h_d4rl_planning.seed = self.seed
         self.eval_cfg.manispace_planning.seed = self.seed
@@ -720,7 +694,6 @@ class Trainer:
                 aae_dataset=self.datasets.aae_dataset,
                 load_checkpoint_path=self.config.load_checkpoint_path,
                 output_path=self.config.output_path,
-                data_config=self.config.data.wall_config,  # TODO: refactor name to data_config
             )
 
             log_dict = self.evaluator.evaluate()

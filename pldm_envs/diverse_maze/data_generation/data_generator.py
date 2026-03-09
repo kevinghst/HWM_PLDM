@@ -12,7 +12,6 @@ import math
 
 from pldm_envs.diverse_maze.data_generation.map_generator import MapGenerator
 from pldm_envs.diverse_maze import ant_draw
-from pldm_envs.diverse_maze.data_generation.wrappers import OGBenchWrapper
 
 from pldm_envs.utils.utils import sample_vector
 from PIL import Image
@@ -36,7 +35,6 @@ class DataGenerator:
         self.dataset_type = self.config.get("dataset_type", "explore")
         self.noise = self.config.get("noise", 0)
         self.resample_every = self.config.get("resample_every", 1)
-        self.ogbench_gather = self.config.get("ogbench_gather", False)
 
         os.makedirs(self.output_path, exist_ok=True)
         # generate map layouts if in diverse setting

@@ -1,7 +1,6 @@
 import numpy as np
 import random
 from collections import deque
-import torch
 from tqdm import tqdm
 from typing import Optional
 

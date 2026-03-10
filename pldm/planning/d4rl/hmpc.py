@@ -1,5 +1,4 @@
 from typing import Optional
-from dataclasses import dataclass
 import torch
 import time
 
@@ -8,13 +7,12 @@ from pldm_envs.utils.normalizer import Normalizer
 from pldm.planning.utils import *
 from pldm.planning.plotting import log_l2_planning_loss, log_planning_plots
 from pldm.planning.d4rl.enums import (
-    D4RLMPCConfig,
     MPCReport,
     HierarchicalD4RLMPCConfig,
 )
 from pldm.planning.d4rl.mpc import MazeMPCEvaluator
 from pldm.planning.enums import PooledMPCResult
-from pldm.planning.planners.enums import PlannerType, PlannerConfig
+from pldm.planning.planners.enums import PlannerType
 from pldm.utils import format_seconds
 from pldm_envs.diverse_maze.utils import PixelMapper
 

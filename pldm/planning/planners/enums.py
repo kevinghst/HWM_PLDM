@@ -1,7 +1,6 @@
 import enum
 from dataclasses import dataclass
 from pldm.configs import ConfigBase
-from typing import Optional, NamedTuple, List
 
 
 class PlannerType(enum.Enum):

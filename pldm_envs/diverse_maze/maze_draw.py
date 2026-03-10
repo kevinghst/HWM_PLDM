@@ -1,7 +1,4 @@
-from __future__ import annotations
 from typing import *
-
-import logging
 
 import matplotlib.pyplot as plt
 import numpy as np

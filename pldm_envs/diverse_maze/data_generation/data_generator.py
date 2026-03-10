@@ -1,20 +1,12 @@
 import os
-import sys
-import argparse
-import yaml
 
-from matplotlib import pyplot as plt
 import numpy as np
 import torch
-from tqdm.auto import tqdm
-import random
-import math
 
 from pldm_envs.diverse_maze.data_generation.map_generator import MapGenerator
 from pldm_envs.diverse_maze import ant_draw
 
 from pldm_envs.utils.utils import sample_vector
-from PIL import Image
 
 
 class DataGenerator:

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Download a dataset snapshot from Hugging Face into a local dataset folder."""
 
-from __future__ import annotations
-
 import argparse
 from pathlib import Path
 

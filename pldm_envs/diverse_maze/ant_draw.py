@@ -1,13 +1,9 @@
-from __future__ import annotations
 from typing import *
 
 import os
 import logging
 
-import matplotlib.pyplot as plt
 import numpy as np
-import torch
-import torch.utils.data
 import gym
 import gym.spaces
 
@@ -16,10 +12,6 @@ from contextlib import (
     redirect_stderr,
     redirect_stdout,
 )
-import random
-
-from gymnasium.envs.registration import register as gymnasium_register
-import gymnasium
 
 from gym.envs.registration import register as gym_register
 

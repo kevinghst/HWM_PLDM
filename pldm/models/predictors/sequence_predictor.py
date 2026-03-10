@@ -2,16 +2,12 @@ from typing import Optional, Union
 
 import torch
 from torch import nn
-from torch.nn import functional as F
-import numpy as np
-import random
 
 from pldm.models.misc import (
     PriorContinuous,
     PosteriorContinuous,
     DiscreteNet,
 )
-from pldm import models
 from pldm.models.utils import *
 from pldm.models.predictors.enums import *
 

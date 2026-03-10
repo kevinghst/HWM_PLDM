@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Download a model checkpoint from Hugging Face into the local pretrained folder."""
 
-from __future__ import annotations
-
 import argparse
 import shutil
 from pathlib import Path

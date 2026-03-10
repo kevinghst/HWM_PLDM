@@ -3,7 +3,6 @@ import dataclasses
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Iterable, Tuple, Union, cast, List, get_origin, get_args
-import typing
 
 
 from omegaconf import OmegaConf

@@ -13,11 +13,10 @@ from pldm.models.misc import (
     PosteriorContinuous,
     DiscreteNet,
 )
-from pldm import models
 from .utils import *
 from pldm.models.enums import PredictorConfig, PredictorOutput
 import dataclasses
-from functorch import combine_state_for_ensemble, vmap
+from functorch import vmap
 from torch.func import stack_module_state, functional_call
 import copy
 

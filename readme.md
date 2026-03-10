@@ -7,6 +7,10 @@ git clone git@github.com:kevinghst/HWM_PLDM.git
 
 cd HWM_PLDM
 
+conda create -n pldm python=3.9 -y
+
+conda activate pldm
+
 pip install -r requirements.txt
 
 pip install -e .
@@ -20,7 +24,6 @@ tar -xzf mujoco210-linux-x86_64.tar.gz
 
 ## Runtime env
 export MUJOCO_GL=egl
-export MUJOCO_PY_MUJOCO_PATH="$HOME/.mujoco/mujoco210"
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/.mujoco/mujoco210/bin"
 export D4RL_SUPPRESS_IMPORT_ERROR=1
 

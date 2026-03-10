@@ -5,7 +5,6 @@ import time
 
 import torch
 from torch.distributions.multivariate_normal import MultivariateNormal
-from arm_pytorch_utilities import handle_batch_input
 
 # from planning.planner import Planner
 

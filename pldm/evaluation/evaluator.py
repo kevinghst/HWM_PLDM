@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import dataclasses
 
 from pldm.probing.evaluator import ProbingConfig, ProbingEvaluator
-from pldm.data.enums import ProbingDatasets, DatasetType
+from pldm.data.enums import ProbingDatasets
 from pldm.planning.d4rl.enums import D4RLMPCConfig, HierarchicalD4RLMPCConfig
 from pldm.planning.enums import LevelConfig, MPCConfig
 from omegaconf import MISSING
@@ -13,7 +13,6 @@ from omegaconf import MISSING
 from pldm_envs.utils.normalizer import Normalizer
 
 from pldm_envs.diverse_maze.utils import PixelMapper as D4RLPixelMapper
-import re
 
 
 @dataclass

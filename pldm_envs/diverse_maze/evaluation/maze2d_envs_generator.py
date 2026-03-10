@@ -1,5 +1,3 @@
-import torch
-from pldm_envs.diverse_maze.utils import load_uniform
 from pldm_envs.diverse_maze.data_generation.maze_stats import RENDER_STATS
 import pldm_envs.diverse_maze.ant_draw as ant_draw
 from pldm_envs.utils.normalizer import Normalizer

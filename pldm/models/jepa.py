@@ -19,8 +19,6 @@ class JEPAConfig(ConfigBase):
 
     action_dim: int = 2
 
-    momentum: float = 0.0  # If 0, no ema
-
     # whether to use the trajectory goal as the latent variable.
     use_z_goal: bool = False
     encode_only: bool = False
@@ -34,7 +32,6 @@ class JEPAConfig(ConfigBase):
 
 class ForwardResult(NamedTuple):
     backbone_output: BackboneOutput
-    ema_backbone_output: BackboneOutput
     pred_output: PredictorOutput
     actions: torch.Tensor
 
@@ -89,20 +86,6 @@ class JEPA(torch.nn.Module):
             self.repr_dim = reduce(operator.mul, self.spatial_repr_dim)
         else:
             self.repr_dim = self.spatial_repr_dim
-
-        if self.config.momentum > 0:
-            self.backbone_ema, _ = build_backbone(
-                config.backbone,
-                input_dim=input_dim,
-                input_obs_dim=input_obs_dim,
-                input_proprio_dim=input_proprio_dim,
-                l2=l2,
-            )
-            self.backbone_ema.load_state_dict(self.backbone.state_dict())
-            for param in self.backbone_ema.parameters():
-                param.requires_grad = False
-        else:
-            self.backbone_ema = None
 
         if l2:
             if config.predictor.posterior_input_type == "term_states":
@@ -192,7 +175,6 @@ class JEPA(torch.nn.Module):
 
         return ForwardResult(
             backbone_output=None,
-            ema_backbone_output=None,
             pred_output=pred_output,
             actions=actions,
         )
@@ -248,13 +230,9 @@ class JEPA(torch.nn.Module):
         else:
             state_encs = input_states  # might be problematic for l2
 
-        # deleted momentum code
-        ema_backbone_output = None
-
         if self.config.encode_only or encode_only:
             return ForwardResult(
                 backbone_output=backbone_output,
-                ema_backbone_output=ema_backbone_output,
                 pred_output=None,
                 actions=actions,
             )
@@ -273,19 +251,9 @@ class JEPA(torch.nn.Module):
 
         return ForwardResult(
             backbone_output=backbone_output,
-            ema_backbone_output=ema_backbone_output,
             pred_output=pred_output,
             actions=actions,
         )
-
-    def update_ema(self):
-        if self.config.momentum > 0:
-            for param, ema_param in zip(
-                self.backbone.parameters(), self.backbone_ema.parameters()
-            ):
-                ema_param.data.mul_(self.config.momentum).add_(
-                    param.data, alpha=1 - self.config.momentum
-                )
 
     def load_state_dict(self, state_dict, strict=True):
         """

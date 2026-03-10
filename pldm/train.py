@@ -518,7 +518,6 @@ class Trainer:
                     raise RuntimeError("NaN loss")
                 total_loss.backward()
                 self.optimizer.step()
-                self.model.update_ema()  # if ema is enabled, update ema encoder
 
                 train_time = time.time() - start_time
                 log_start_time = time.time()

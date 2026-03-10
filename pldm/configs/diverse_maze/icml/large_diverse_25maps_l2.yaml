@@ -73,7 +73,6 @@ hjepa:
     encode_only: false
     use_z_goal: false
     action_dim: 2
-    momentum: 0
   step_skip: *l2_step_skip
   level2:
     backbone:
@@ -109,7 +108,6 @@ hjepa:
     encode_only: false
     use_z_goal: false
     action_dim: 0
-    momentum: 0
 load_checkpoint_path: ${root_path}/pldm/pretrained/epoch=3_sample_step=15465472.ckpt
 objectives_l1:
   idm:

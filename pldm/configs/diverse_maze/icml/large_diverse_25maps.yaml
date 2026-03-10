@@ -65,7 +65,6 @@ hjepa:
     encode_only: false
     use_z_goal: false
     action_dim: 2
-    momentum: 0
   step_skip: 4
 load_checkpoint_path: null
 load_l1_only: false

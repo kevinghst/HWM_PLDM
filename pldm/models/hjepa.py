@@ -191,11 +191,6 @@ class HJEPA(torch.nn.Module):
 
         return ForwardResult(level1=forward_result_l1, level2=forward_result_l2)
 
-    def update_ema(self):
-        self.level1.update_ema()
-        if not self.config.disable_l2:
-            self.level2.update_ema()
-
     def subsampling_ratio(self):
         return self.level2.subsampling_ratio()
 

@@ -74,16 +74,6 @@ class PredictionObjective(torch.nn.Module):
         else:
             raise NotImplementedError
 
-        if result.ema_backbone_output is not None:
-            if self.pred_attr == "state":
-                encodings = result.ema_backbone_output.encodings[1:]
-            elif self.pred_attr == "obs":
-                encodings = result.ema_backbone_output.obs_component[1:]
-            elif self.pred_attr == "proprio":
-                encodings = result.ema_backbone_output.proprio_component[1:]
-            else:
-                raise NotImplementedError
-
         if ensemble_predictions:
             ensemble_size = predictions.shape[1]
             encodings = encodings.unsqueeze(1).repeat(

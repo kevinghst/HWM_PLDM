@@ -177,27 +177,6 @@ class HJEPA(torch.nn.Module):
             else:
                 encodings = forward_result_l1_for_l2.backbone_output.encodings
 
-            # if self.config.level2.predictor.z_dim:
-            #     # we chunk the l1 actions and pass them as they are
-            #     T, bs, action_dim = actions.shape
-            #     actions = actions.view(
-            #         T // self.config.step_skip,
-            #         self.config.step_skip,
-            #         bs,
-            #         action_dim,
-            #     )
-            #     actions = actions.transpose(1, 2)
-            #     actions = actions.view(
-            #         T // self.config.step_skip,
-            #         bs,
-            #         self.config.step_skip * action_dim,
-            #     )
-
-            #     # (l2_T, bs, action_dim * time_skips)
-            # else:
-            #     # we manually encode the actions
-            #     actions = self.encode_actions(actions)
-
             l2_kwargs = {"actions": l2_actions, "goal": goal}
             if self.level2.backbone.using_proprio:
                 # L1's proprio component (, 2, 35, 35), L2 will downsample to (, 2, 16, 16)
@@ -209,7 +188,7 @@ class HJEPA(torch.nn.Module):
 
         else:
             forward_result_l2 = None
-
+        breakpoint()
         return ForwardResult(level1=forward_result_l1, level2=forward_result_l2)
 
     def update_ema(self):

@@ -77,25 +77,14 @@ hjepa:
   step_skip: *l2_step_skip
   level2:
     backbone:
-      arch: menet6
-      backbone_subclass: l2_d4rl_c
-      backbone_mlp: null
-      backbone_width_factor: 1
+      arch: identity_encoder
       input_dim: null
       channels: 16
+      final_ln: false
       late_proprio_cfg:
         encoder_arch: 'id_expand'
         ignore: false
         fuse: true
-      early_proprio_cfg:
-        ignore: true
-      early_location_cfg:
-        ignore: true
-      late_location_cfg:
-        ignore: true
-      local_patch_cfg:
-        ignore: true
-      final_ln: false
     predictor:
       residual: true
       action_encoder_arch: '8-64-8'

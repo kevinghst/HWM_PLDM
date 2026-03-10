@@ -226,23 +226,6 @@ class SequencePredictor(torch.nn.Module):
             [current_raw_location] if current_raw_location is not None else []
         )
 
-        if self._is_rnn():
-            # repeat num layers
-            if self.ensemble:
-                # ensemble_size, num_layers, bs, repr_dim
-                current_state = (
-                    current_state.unsqueeze(1)
-                    .repeat(1, self.num_layers, 1, 1)
-                    .contiguous()
-                )
-            else:
-                # num_layers, bs, repr_dim
-                current_state = (
-                    current_state.unsqueeze(0)
-                    .repeat(self.num_layers, 1, 1)
-                    .contiguous()
-                )
-
         prior_mus = []
         prior_vars = []
         prior_logits = []
@@ -251,14 +234,6 @@ class SequencePredictor(torch.nn.Module):
         posterior_vars = []
         posterior_logits = []
         posteriors = []
-
-        # Determine if we should use teacher forcing for this sequence
-        use_teacher_forcing = (
-            self._is_transformer()  # Check if it's a transformer
-            and self.config.use_teacher_forcing
-            and self.training
-            and random.random() < self.config.transformer_teacher_forcing_ratio
-        )
 
         for i in range(T):
             predictor_input = []
@@ -277,27 +252,15 @@ class SequencePredictor(torch.nn.Module):
                 if latents is not None:
                     prior = latents[i]
                 else:
-                    if self.z_stochastic:
-                        prior = self.prior_model.sample(prior_stats)
-                    else:
-                        # Deterministic: use only the mean/mode
-                        if self.z_discrete:
-                            prior = self.prior_model.sample(
-                                prior_stats, argmax=True
-                            )  # Use mode (argmax)
-                        else:
-                            mu, var = prior_stats
-                            prior = mu
+                    # Deterministic: use only the mean/mode
+                    mu, var = prior_stats
+                    prior = mu
 
-                if self.z_discrete:
-                    prior = self.latent_merger(prior)
-                    prior_logits.append(prior_stats)
-                else:
-                    # Extract mu, var for logging (reuse if already extracted in deterministic case)
-                    if not (latents is None and not self.z_stochastic):
-                        mu, var = prior_stats
-                    prior_mus.append(mu)
-                    prior_vars.append(var)
+                # Extract mu, var for logging (reuse if already extracted in deterministic case)
+                if not (latents is None and not self.z_stochastic):
+                    mu, var = prior_stats
+                prior_mus.append(mu)
+                prior_vars.append(var)
 
                 priors.append(prior)
 
@@ -317,73 +280,28 @@ class SequencePredictor(torch.nn.Module):
                             posterior_input.shape[0], -1
                         )
 
-                    # posterior_stats = self.posterior_model(
-                    #     x_prev=current_state,
-                    #     x_next=state_encs[i + 1],
-                    #     action=actions[i] if actions is not None else None,
-                    # )
                     posterior_stats = self.posterior_model(posterior_input)
-                    if self.z_stochastic:
-                        posterior = self.posterior_model.sample(posterior_stats)
-                    else:
-                        # Deterministic: use only the mean/mode
-                        if self.z_discrete:
-                            posterior = self.posterior_model.sample(
-                                posterior_stats, argmax=True
-                            )  # Use mode (argmax)
-                        else:
-                            posterior_mu, posterior_var = posterior_stats
-                            posterior = posterior_mu
+                    # Deterministic: use only the mean/mode
+                    posterior_mu, posterior_var = posterior_stats
+                    posterior = posterior_mu
 
-                    if self.z_discrete:
-                        posterior = self.latent_merger(posterior)
-                        posterior_logits.append(posterior_stats)
-                    else:
-                        # Extract mu, var for logging (reuse if already extracted in deterministic case)
-                        if self.z_stochastic:
-                            posterior_mu, posterior_var = posterior_stats
-                        posterior_mus.append(posterior_mu)
-                        posterior_vars.append(posterior_var)
+                    posterior_mus.append(posterior_mu)
+                    posterior_vars.append(posterior_var)
 
                     posteriors.append(posterior)
 
                     z_input = posterior
 
-                    if (
-                        self.posterior_drop_p
-                        and np.random.random() < self.posterior_drop_p
-                    ):
-                        z_input = prior
-                        # TODO check this. seems like a bug. not supposed to replace all posterior with prior
                     predictor_input.append(z_input)
                 else:
                     predictor_input.append(prior)
             elif self.posterior_model is not None and actions is not None:
-                if self.posterior_input_type == "actions":
-                    posterior_input = actions[i]  # (bs, chunk_size, action_dim)
-                    posterior_input = posterior_input.view(posterior_input.shape[0], -1)
-                elif self.posterior_input_type == "term_states":
-                    posterior_input = torch.cat(
-                        [
-                            flatten_conv_output(current_state),
-                            flatten_conv_output(state_encs[i + 1]),
-                        ],
-                        dim=-1,
-                    )
-                posterior_stats = self.posterior_model(posterior_input)
+                posterior_input = actions[i]  # (bs, chunk_size, action_dim)
+                posterior_input = posterior_input.view(posterior_input.shape[0], -1)
 
-                if self.z_stochastic:
-                    posterior = self.posterior_model.sample(posterior_stats)
-                else:
-                    if self.z_discrete:
-                        posterior = self.posterior_model.sample(
-                            posterior_stats, argmax=True
-                        )  # Use mode (argmax)
-                    else:
-                        posterior_mu, posterior_var = posterior_stats
-                        posterior = posterior_mu
-                if self.z_discrete:
-                    posterior = self.latent_merger(posterior)
+                posterior_stats = self.posterior_model(posterior_input)
+                posterior_mu, posterior_var = posterior_stats
+                posterior = posterior_mu
 
                 predictor_input.append(posterior)
 
@@ -396,44 +314,20 @@ class SequencePredictor(torch.nn.Module):
                 torch.cat(predictor_input, dim=-1) if predictor_input else None
             )
 
-            if self._is_transformer():
-                if self.ensemble:
-                    raise NotImplementedError(
-                        "EnsemblePredictor with Transformer not implemented"
-                    )
-                pred_output = self.forward_and_format(
-                    current_state,
-                    curr_action=curr_action,
-                    curr_obs=current_obs,
-                    curr_proprio=current_proprio,
-                    curr_location=current_location,
-                    curr_raw_location=current_raw_location,
-                    timestep=i,
-                )
-                # don't we have to reset the current_state?
-            elif self._is_rnn():
-                pred_output = self.forward_and_format(
-                    rnn_state=current_state,
-                    rnn_input=torch.cat(predictor_input, dim=-1),
-                    curr_obs=current_obs,
-                    curr_proprio=current_proprio,
-                )
-                current_state = pred_output.next_hidden_state
-            else:
-                pred_output = self.forward_and_format(
-                    current_state,
-                    curr_action=torch.cat(predictor_input, dim=-1),
-                    curr_obs=current_obs,
-                    curr_proprio=current_proprio,
-                    curr_location=current_location,
-                    curr_raw_location=current_raw_location,
-                    timestep=i,
-                )
-                current_state = pred_output.prediction
-                current_obs = pred_output.obs_component
-                current_proprio = pred_output.proprio_component
-                current_location = pred_output.location_component
-                current_raw_location = pred_output.raw_location
+            pred_output = self.forward_and_format(
+                current_state,
+                curr_action=torch.cat(predictor_input, dim=-1),
+                curr_obs=current_obs,
+                curr_proprio=current_proprio,
+                curr_location=current_location,
+                curr_raw_location=current_raw_location,
+                timestep=i,
+            )
+            current_state = pred_output.prediction
+            current_obs = pred_output.obs_component
+            current_proprio = pred_output.proprio_component
+            current_location = pred_output.location_component
+            current_raw_location = pred_output.raw_location
 
             state_predictions.append(pred_output.prediction)
             obs_component.append(pred_output.obs_component)
@@ -443,11 +337,6 @@ class SequencePredictor(torch.nn.Module):
                 location_component.append(pred_output.location_component)
             if pred_output.raw_location is not None:
                 raw_locations.append(pred_output.raw_location)
-
-            # Update current state based on teacher forcing (only for Transformer)
-            if use_teacher_forcing and i < T - 1:
-                # Use the ground truth next state if teacher forcing is active
-                current_state = state_encs[i + 1]
 
         t = len(state_predictions)
         state_predictions = torch.stack(state_predictions)

@@ -45,15 +45,11 @@ class TwoLvlPlanner:
 
         locations_cuda = curr_locations.cuda() if curr_locations is not None else None
 
-        backbone_output_1 = self.l1_planner.model.backbone(
+        backbone_output = self.l1_planner.model.backbone(
             current_state.cuda(), proprio=proprio_l1, locations=locations_cuda
         )
-        backbone_output_2 = self.l2_planner.model.backbone(
-            backbone_output_1.obs_component, proprio=backbone_output_1.proprio_component
-        )
-
         l2_result = self.l2_planner.plan(
-            current_state=backbone_output_2,
+            current_state=backbone_output,
             plan_size=plan_size,
             repr_input=True,
             # diff_loss_idx=diff_loss_idx.to(enc2.device),
@@ -79,7 +75,7 @@ class TwoLvlPlanner:
             )
 
             l1_result = self.l1_planner.plan(
-                current_state=backbone_output_1,
+                current_state=backbone_output,
                 plan_size=self.l2_step_skip,
                 repr_input=True,
                 curr_proprio_pos=curr_proprio_pos,

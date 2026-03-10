@@ -211,106 +211,6 @@ class MeNet6(SequenceBackbone):
             if config.final_ln:
                 self.final_ln["obs"] = torch.nn.LayerNorm(patch_out_dim)
 
-        # # only add layernorm if there's a proprio component in output
-        # if (
-        #     config.final_ln
-        #     and proprio_out_dim is not None
-        #     and isinstance(proprio_out_dim, int)
-        # ):
-        #     self.final_ln = build_norm1d(config.backbone_norm, proprio_out_dim)
-        # else:
-        #     self.final_ln = nn.Identity()
-
-    def _get_normed_xy(self, curr_raw_location):
-        ant_xy_obs = self.normalizer.unnormalize_location(curr_raw_location)
-        ant_xy_pixels = self.normalizer.pixel_mapper.obs_coord_to_pixel_coord(
-            ant_xy_obs
-        )
-        ant_xy_normalized = ant_xy_pixels / self.normalizer.pixel_mapper.img_width
-        return ant_xy_normalized
-
-    def _extract_local_patch_fixed(self, current_state, curr_raw_location):
-        """
-        Args:
-            current_state: Tensor of shape (B, C, H, W) - conv feature map
-            ant_xy_normalized: Tensor of shape (B, 2) - ant position in normalized image coordinates [0, 1]
-
-        Returns:
-            patch: Tensor of shape (B, C, 3, 3)
-        """
-        B, C, H, W = current_state.shape
-        device = current_state.device
-
-        xy_normalized = self._get_normed_xy(curr_raw_location)
-
-        # Convert normalized coordinates to pixel indices in feature map
-        x_idx = (xy_normalized[:, 0] * (W - 1)).round().long().clamp(1, W - 2)
-        y_idx = (xy_normalized[:, 1] * (H - 1)).round().long().clamp(1, H - 2)
-
-        # Prepare output tensor
-        patch = torch.zeros((B, C, 3, 3), device=device, dtype=current_state.dtype)
-
-        for i in range(3):
-            for j in range(3):
-                # Offsets: -1, 0, 1
-                dx, dy = j - 1, i - 1
-                xi = (x_idx + dx).clamp(0, W - 1)
-                yi = (y_idx + dy).clamp(0, H - 1)
-
-                # Gather current_state: for batch b, at (yi[b], xi[b])
-                batch_indices = torch.arange(B, device=device)
-                patch[:, :, i, j] = current_state[batch_indices, :, yi, xi]
-
-        return patch  # shape (B, C, 3, 3)
-
-    def _extract_local_patch_dynamic(self, current_state, curr_raw_location):
-        """
-        Copied from ChatGPT. No QA yet.
-        """
-        B, C, H, W = current_state.shape
-
-        xy_normalized = self._get_normed_xy(curr_raw_location)
-
-        # Normalize ant_xy to [-1, 1] range for grid_sample
-        xy_grid = xy_normalized * 2 - 1  # (B, 2)
-
-        # Generate 3x3 relative offsets (in [-1, 1] space of grid_sample)
-        offsets = torch.tensor(
-            [
-                [-1, -1],
-                [0, -1],
-                [1, -1],
-                [-1, 0],
-                [0, 0],
-                [1, 0],
-                [-1, 1],
-                [0, 1],
-                [1, 1],
-            ],
-            dtype=current_state.dtype,
-            device=current_state.device,
-        )  # (9, 2)
-
-        # Convert offsets from pixels to normalized feature space
-        dx = 2.0 / (W - 1)
-        dy = 2.0 / (H - 1)
-        norm_offsets = offsets * torch.tensor([dx, dy], device=current_state.device)
-
-        # Repeat offsets per batch and add to base positions
-        grid = xy_grid[:, None, :] + norm_offsets[None, :, :]  # (B, 9, 2)
-        grid = grid.view(B, 3, 3, 2)  # (B, 3, 3, 2)
-
-        # grid_sample expects (B, H_out, W_out, 2)
-        patch = F.grid_sample(
-            current_state,
-            grid,
-            mode="bilinear",
-            padding_mode="border",
-            align_corners=True,
-        )  # (B, C, 3, 3)
-
-        return patch
-
     def _build_proprio_encoder(self, arch: str, input_dim, proprio_dim, fuse: bool):
         # infer output dim of encoder
         sample_input = torch.randn(input_dim).unsqueeze(0)
@@ -388,22 +288,6 @@ class MeNet6(SequenceBackbone):
                     proprio_dim = (proprio_dim, w, h)
 
         return proprio_encoder, proprio_dim
-
-    def _extract_local_patch(self, current_state, locations):
-        if self.config.local_patch_cfg.patch_type == "fixed":
-            obs = self._extract_local_patch_fixed(current_state, locations)
-        elif self.config.local_patch_cfg.patch_type == "dynamic":
-            obs = self._extract_local_patch_dynamic(current_state, locations)
-        else:
-            raise NotImplementedError(
-                f"Unknown local patch type: {self.config.local_patch_cfg.patch_type}"
-            )
-
-        # flatten the local patch
-        obs = obs.flatten(1)
-
-        obs = self.local_patch_encoder(obs)
-        return obs
 
     def forward(self, x, proprio=None, **kwargs):
         """
@@ -493,30 +377,6 @@ class ResizeConv2d(nn.Module):
         return x
 
 
-class Canonical(nn.Module):
-    def __init__(self, output_dim: int = 64):
-        super().__init__()
-        res = int(np.sqrt(output_dim / 64))
-        assert (
-            res * res * 64 == output_dim
-        ), "canonical backbone resolution error: cant fit desired output_dim"
-
-        self.backbone = nn.Sequential(
-            nn.Conv2d(1, 32, 4, stride=2, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 4, stride=2, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3, stride=1, padding=0),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d((res, res)),
-        )
-
-    def forward(self, x):
-        x = self.backbone(x).flatten(1)
-        x = BackboneOutput(encodings=x)
-        return x
-
-
 class MLPEncoder(SequenceBackbone):
     def __init__(self, config, input_dim, final_ln=False):
         super().__init__()
@@ -549,22 +409,23 @@ class IdentityEncoder(SequenceBackbone):
         self.input_obs_dim = input_obs_dim
         self.input_proprio_dim = input_proprio_dim
 
-    def forward(self, x, proprio=None):
+    def forward(self, x, proprio=None, **kwargs):
         """
         x: torch.Size (bs, channels, w, h)
         """
 
-        obs_component = x[:, : self.input_obs_dim[0]]
-        proprio_component = x[:, self.input_obs_dim[0] :]
+        obs_component = x
+        proprio_component = proprio
+        encodings = torch.cat([obs_component, proprio_component], dim=1) if proprio_component is not None else obs_component
+        locations = kwargs.get("locations", None)
 
-        if self.config.late_fuse_proprio_encoder_arch == "ignore":
-            x = BackboneOutput(
-                encodings=obs_component,
-                obs_component=obs_component,
-            )
-        else:
-            raise NotImplementedError
-
+        x = BackboneOutput(
+            encodings=encodings,
+            obs_component=obs_component,
+            proprio_component=proprio_component,
+            raw_locations=locations,
+        )
+        
         return x
 
 
@@ -615,116 +476,6 @@ class FuseXYEncoder(SequenceBackbone):
         return x
 
 
-class IdentityXYEncoder(SequenceBackbone):
-    """
-    encoder for features and proprio state
-    (features, xy, pprio, pvel) --> (features, xy)
-    """
-
-    def __init__(self, config, input_dim, input_obs_dim, input_proprio_dim):
-        super().__init__()
-        self.config = config
-        self.input_dim = input_dim
-        self.input_obs_dim = input_obs_dim
-        self.input_proprio_dim = input_proprio_dim
-
-    def forward(self, x):
-        """
-        x: torch.Size (bs, channels, w, h)
-        """
-
-        obs_channels = self.input_obs_dim[0]
-        # we know apriori that the first 2 proprio channels are x and y
-        x = x[:, : obs_channels + 2]
-
-        x = BackboneOutput(
-            encodings=x,
-            obs_component=x[:, :obs_channels],
-            proprio_component=x[:, obs_channels:],
-        )
-
-        return x
-
-
-class ObProprioEncoder2(SequenceBackbone):
-    """
-    Distangled encoder for observation and proprio state.
-    obs --> obs_encoder --> obs_out
-    proprio --> proprio_encoder --> proprio_out
-    encodings = cat(obs_out, proprio_out)
-    return: encodings, obs_out, proprio_out
-    """
-
-    def __init__(
-        self,
-        config,
-        obs_dim: int,
-        input_proprio_dim: int,
-        input_loc_dim: int,
-    ):
-        super().__init__()
-        self.config = config
-
-        obs_subclass = config.backbone_subclass
-        proprio_subclass = config.late_proprio_cfg.encoder_arch
-
-        self.using_proprio = True
-        self.using_location = True
-
-        if obs_subclass == "id":
-            self.obs_encoder = nn.Identity()
-            obs_out_dim = input_loc_dim
-        else:
-            self.obs_encoder = build_mlp(
-                layers_dims=obs_subclass,
-                input_dim=input_loc_dim,
-                norm=config.backbone_norm,
-                activation="mish",
-            )
-            obs_out_dim = int(obs_subclass.split("-")[-1])
-
-        if proprio_subclass == "id":
-            self.proprio_encoder = nn.Identity()
-            proprio_out_dim = input_proprio_dim
-        else:
-            self.proprio_encoder = build_mlp(
-                layers_dims=proprio_subclass,
-                input_dim=input_proprio_dim,
-                norm=config.backbone_norm,
-                activation="mish",
-            )
-            proprio_out_dim = int(proprio_subclass.split("-")[-1])
-
-        if config.final_ln:
-            self.final_ln = PartialAffineLayerNorm(
-                first_dim=obs_out_dim,
-                second_dim=proprio_out_dim,
-                first_affine=(obs_subclass != "id"),
-                second_affine=(proprio_subclass != "id"),
-            )
-        else:
-            self.final_ln = nn.Identity()
-
-    def forward(self, obs, proprio, **kwargs):
-        locations = kwargs.get("locations", None)
-        obs = locations
-
-        obs_out = self.obs_encoder(obs)
-        proprio_out = self.proprio_encoder(proprio)
-
-        obs_out_dim = obs_out.shape[1]
-        proprio_out_dim = proprio_out.shape[1]
-
-        next_state = torch.cat([obs_out, proprio_out], dim=1)
-        next_state = self.final_ln(next_state)
-
-        return BackboneOutput(
-            encodings=next_state,
-            obs_component=next_state[:, :obs_out_dim],
-            proprio_component=next_state[:, obs_out_dim:],
-        )
-
-
 def build_backbone(
     config: BackboneConfig,
     input_dim,
@@ -767,28 +518,12 @@ def build_backbone(
             input_dim=input_dim,
             final_ln=config.final_ln,
         )
-    elif arch == "canonical":
-        backbone = Canonical(output_dim=config.fc_output_dm)
-    elif arch == "ob_proprio_enc_2":
-        backbone = ObProprioEncoder2(
-            config=config,
-            obs_dim=input_dim,
-            input_proprio_dim=input_proprio_dim,
-            input_loc_dim=input_loc_dim,
-        )
     elif l2:
         # Used for the second-level HJEPA.
         if arch == "identity":
             backbone = nn.Identity()
         elif arch == "identity_encoder":
             backbone = IdentityEncoder(
-                config=config,
-                input_dim=input_dim,
-                input_obs_dim=input_obs_dim,
-                input_proprio_dim=input_proprio_dim,
-            )
-        elif arch == "identity_xy":
-            backbone = IdentityXYEncoder(
                 config=config,
                 input_dim=input_dim,
                 input_obs_dim=input_obs_dim,

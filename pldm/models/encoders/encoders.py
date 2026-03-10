@@ -409,10 +409,16 @@ class IdentityEncoder(SequenceBackbone):
         self.input_obs_dim = input_obs_dim
         self.input_proprio_dim = input_proprio_dim
 
+        early_proprio_cfg = config.early_proprio_cfg
+        late_proprio_cfg = config.late_proprio_cfg
+        self.using_proprio = not early_proprio_cfg.ignore or not late_proprio_cfg.ignore
+
     def forward(self, x, proprio=None, **kwargs):
         """
         x: torch.Size (bs, channels, w, h)
         """
+        if proprio is None:
+            raise ValueError("Proprio input is required for IdentityEncoder")
 
         obs_component = x
         proprio_component = proprio

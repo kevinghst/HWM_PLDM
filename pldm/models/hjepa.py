@@ -181,14 +181,14 @@ class HJEPA(torch.nn.Module):
             if self.level2.backbone.using_proprio:
                 # L1's proprio component (, 2, 35, 35), L2 will downsample to (, 2, 16, 16)
                 l1_proprio = forward_result_l1_for_l2.backbone_output.proprio_component
-                if l1_proprio is not None:
-                    l2_kwargs["proprio"] = l1_proprio
-
-            forward_result_l2 = self.level2.forward_posterior(encodings, **l2_kwargs)
+                l1_obs = forward_result_l1_for_l2.backbone_output.obs_component
+                forward_result_l2 = self.level2.forward_posterior(l1_obs, proprio=l1_proprio, **l2_kwargs)
+            else:
+                forward_result_l2 = self.level2.forward_posterior(encodings, **l2_kwargs)
 
         else:
             forward_result_l2 = None
-        breakpoint()
+
         return ForwardResult(level1=forward_result_l1, level2=forward_result_l2)
 
     def update_ema(self):

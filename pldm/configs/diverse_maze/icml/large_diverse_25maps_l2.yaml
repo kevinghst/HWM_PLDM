@@ -109,41 +109,7 @@ hjepa:
     use_z_goal: false
     action_dim: 0
 load_checkpoint_path: ${root_path}/pldm/pretrained/epoch=3_sample_step=15465472.ckpt
-objectives_l1:
-  idm:
-    action_dim: 2
-    coeff: 5.3964
-    arch: 'conv'
-    use_pred: false
-    arch_subclass: a
-  kl:
-    global_coeff: 1
-    global_prior: true
-  objectives:
-  - ObjectiveType.VICRegObs
-  - ObjectiveType.IDM
-  - ObjectiveType.PredictionProprio
-  probe:
-    coeff: 1
-    arch_subclass: 'b'
-  vicreg_obs:
-    adjust_cov: true
-    cov_chunk_size: null
-    cov_coeff: 11.925
-    cov_coeff_t: 0
-    cov_per_feature: false
-    projector: id
-    random_projector: false
-    sim_coeff: 1
-    std_coeff: 35.026
-    std_coeff_t: 2.9199
-    sim_coeff_t: 0.10193
-  prediction_proprio:
-    global_coeff: 1.4108
 objectives_l2:
-  kl:
-    global_coeff: 1
-    global_prior: true
   objectives:
   - ObjectiveType.PredictionObs
   - ObjectiveType.PredictionProprio
@@ -208,63 +174,6 @@ eval_cfg:
     schedule: Cosine
     visualize_probing: true
     load_prober: false
-  d4rl_planning:
-    n_envs: 85
-    n_envs_batch_size: 16
-    n_steps: 192
-    levels: "easy,medium,hard"
-    easy:
-      n_steps: 200
-      n_envs: 40
-      max_plan_length: 100
-      plot_every: 10
-      min_block_radius: 4
-      max_block_radius: 9999
-      override_config: true
-      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_5_8.pt"
-    medium:
-      n_steps: 200
-      n_envs: 40
-      max_plan_length: 100
-      plot_every: 10
-      min_block_radius: 4
-      max_block_radius: 9999
-      override_config: true
-      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_9_12.pt"
-    hard:
-      n_steps: 200
-      n_envs: 40
-      max_plan_length: 100
-      plot_every: 10
-      min_block_radius: 4
-      max_block_radius: 9999
-      override_config: true
-      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_13_16.pt"
-    log_pred_dist_every: 9999999
-    plot_every: 16
-    action_repeat: 4
-    action_repeat_mode: 'id'
-    img_size: 98
-    replan_every: 4
-    image_obs: true
-    stack_states: 1
-    data_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/"
-    level1:
-      planner_type: PlannerType.MPPI
-      min_step: 0
-      max_step: 1
-      max_plan_length: 128
-      sgd:
-        action_change_reg: 0
-        l2_reg: 0
-        lr: 0.03
-        n_iters: 200
-      mppi:
-        noise_sigma: 5
-        num_samples: 500
-        lambda_: 0.0025
-    #d4rl specific
-    position_only: true
   h_d4rl_planning:
     env_name: *env_name
     n_envs: 85

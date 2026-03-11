@@ -76,9 +76,6 @@ objectives_l1:
     arch: 'conv'
     use_pred: false
     arch_subclass: a
-  kl:
-    global_coeff: 1
-    global_prior: true
   objectives:
   - ObjectiveType.VICRegObs
   - ObjectiveType.IDM

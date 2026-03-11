@@ -24,7 +24,7 @@ data:
     beta: 0.4
     crop_length: null
     images_path: /scratch/wz1232/data/maze2d_large_diverse_25maps/images.npy
-    path: /scratch/wz1232/data/maze2d_large_diverse_25maps/data.p
+    path: ${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_25maps/data.p
     location_only: false
     num_workers: 12
     prioritized: false
@@ -168,7 +168,7 @@ objectives_l2:
     global_coeff: 2.416154262252218
 optimizer_type: Adam
 output_dir: maze2d_large_diverse
-output_root: /scratch/wz1232/HJEPA/checkpoint/maze2d_large_diverse/l2_wo_encoder
+output_root: ${root_path}/checkpoint/maze2d_large_diverse/l2_wo_encoder
 eval_cfg:
   env_name: *env_name
   log_heatmap: false
@@ -181,9 +181,9 @@ eval_cfg:
     l1_depth: *n_steps
     l2_depth: 91
     train_images_path: /scratch/wz1232/data/maze2d_large_diverse_probe/images.npy
-    train_path: /scratch/wz1232/data/maze2d_large_diverse_probe/data.p
+    train_path: ${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/data.p
     val_images_path: /scratch/wz1232/data/maze2d_large_diverse_probe/images.npy
-    val_path: /scratch/wz1232/data/maze2d_large_diverse_probe/data.p
+    val_path: ${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/data.p
     probe_targets: 'locations'
     diff_targets: 'obs_component'
     locations:
@@ -221,7 +221,7 @@ eval_cfg:
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_5_8.pt"
+      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_5_8.pt"
     medium:
       n_steps: 200
       n_envs: 40
@@ -230,7 +230,7 @@ eval_cfg:
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_9_12.pt"
+      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_9_12.pt"
     hard:
       n_steps: 200
       n_envs: 40
@@ -239,7 +239,7 @@ eval_cfg:
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_13_16.pt"
+      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_13_16.pt"
     log_pred_dist_every: 9999999
     plot_every: 16
     action_repeat: 4
@@ -248,7 +248,7 @@ eval_cfg:
     replan_every: 4
     image_obs: true
     stack_states: 1
-    data_path: '/scratch/wz1232/data/maze2d_large_diverse_probe/'
+    data_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/"
     level1:
       planner_type: PlannerType.MPPI
       min_step: 0
@@ -283,7 +283,7 @@ eval_cfg:
     replan_every: 4
     image_obs: true
     stack_states: 1
-    data_path: '/scratch/wz1232/data/maze2d_large_diverse_probe/'
+    data_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/"
     level1:
       planner_type: PlannerType.MPPI
       min_step: 0
@@ -329,7 +329,7 @@ eval_cfg:
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_5_8.pt"
+      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_5_8.pt"
       level1:
         mppi:
           num_samples: 500
@@ -345,7 +345,7 @@ eval_cfg:
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_9_12.pt"
+      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_9_12.pt"
       level1:
         mppi:
           num_samples: 500
@@ -361,7 +361,7 @@ eval_cfg:
       min_block_radius: 4
       max_block_radius: 9999
       override_config: true
-      set_start_target_path: "/scratch/wz1232/data/maze2d_large_diverse_probe/starts_targets_13_16.pt"
+      set_start_target_path: "${root_path}/pldm_envs/diverse_maze/datasets/maze2d_large_diverse_probe/starts_targets_13_16.pt"
       level1:
         mppi:
           num_samples: 1000

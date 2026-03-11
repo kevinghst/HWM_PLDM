@@ -52,6 +52,7 @@ gdown==4.7.1
 gpustat==0.6.0
 gunicorn==20.1.0
 html-testRunner==1.2.1
+huggingface_hub==1.6.0
 identify==2.5.22
 idna==3.4
 imagesize==1.4.1

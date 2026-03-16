@@ -108,7 +108,7 @@ hjepa:
     encode_only: false
     use_z_goal: false
     action_dim: 0
-load_checkpoint_path: ${root_path}/pldm/pretrained/epoch=3_sample_step=15465472.ckpt
+load_checkpoint_path: ${root_path}/pldm/pretrained/3-9-1-seed248_epoch=3_sample_step=15465472.ckpt
 objectives_l2:
   objectives:
   - ObjectiveType.PredictionObs

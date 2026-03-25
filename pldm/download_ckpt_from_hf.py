@@ -19,7 +19,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--filename",
-        default="epoch=3_sample_step=15465472.ckpt",
+        default="3-9-1-seed248_epoch=3_sample_step=15465472.ckpt",
         help="Checkpoint filename in the HF repo",
     )
     parser.add_argument(

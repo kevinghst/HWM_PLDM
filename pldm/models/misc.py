@@ -180,6 +180,31 @@ class PosteriorContinuous(torch.nn.Module):
         return mu, std
 
 
+class IdLn(torch.nn.Module):
+    def __init__(self, input_dim, z_dim: int, min_std: float):
+        super().__init__()
+        if not isinstance(input_dim, int):
+            input_dim = math.prod(input_dim)
+
+        if input_dim != z_dim:
+            raise ValueError(
+                f"IdLn requires input_dim == z_dim for identity behavior, got input_dim={input_dim}, z_dim={z_dim}"
+            )
+
+        self.input_dim = input_dim
+        self.min_std = min_std
+        self.mu_ln = nn.LayerNorm(self.input_dim)
+
+    def sample(self, stats):
+        mu, var = stats
+        return torch.randn_like(mu) * var + mu
+
+    def forward(self, input: torch.Tensor):
+        mu = self.mu_ln(input)
+        std = torch.ones_like(mu) * self.min_std
+        return mu, std
+
+
 class Posterior(torch.nn.Module):
     def __init__(self, state_encoding_dim: int, z_dim: int, min_std: float):
         super().__init__()

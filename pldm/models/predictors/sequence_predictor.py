@@ -6,6 +6,7 @@ from torch import nn
 from pldm.models.misc import (
     PriorContinuous,
     PosteriorContinuous,
+    IdLn,
     DiscreteNet,
 )
 from pldm.models.utils import *
@@ -46,8 +47,16 @@ class SequencePredictor(torch.nn.Module):
                 z_dim=config.z_dim,
                 min_std=config.z_min_std,
             )
-            if config.posterior_arch == 'id':
-                raise NotImplementedError("Identity posterior not implemented yet")
+            if config.posterior_arch == 'id_ln':
+                self.posterior_model = IdLn(
+                    input_dim=(
+                        repr_dim * 2
+                        if self.posterior_input_type == "term_states"
+                        else config.posterior_input_dim
+                    ),
+                    z_dim=config.z_dim,
+                    min_std=config.z_min_std,
+                )
             elif config.posterior_arch == 'analytical':
                 raise NotImplementedError("Analytical posterior not implemented yet")
             else:
@@ -62,6 +71,7 @@ class SequencePredictor(torch.nn.Module):
                     min_std=config.z_min_std,
                     posterior_input_type=config.posterior_input_type,
                 )
+                breakpoint()
         else:
             self.prior_model = None
             self.posterior_model = None

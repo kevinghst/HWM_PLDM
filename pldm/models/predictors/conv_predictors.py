@@ -460,6 +460,9 @@ class ConvPredictor(SequencePredictor):
             pred_obs_dim=pred_obs_dim,
         )
         self.num_groups = num_groups
+        action_channels = action_dim
+        if self.config.action_encoder_arch and self.config.action_encoder_arch != "id":
+            action_channels = int(self.config.action_encoder_arch.split("-")[-1])
         input_dim = (
             pred_obs_dim[0]
             + (
@@ -467,7 +470,7 @@ class ConvPredictor(SequencePredictor):
                 if isinstance(pred_proprio_dim, int)
                 else pred_proprio_dim[0]
             )
-            + action_dim,
+            + action_channels,
             *pred_obs_dim[1:],
         )
 

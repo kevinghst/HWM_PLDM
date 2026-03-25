@@ -40,32 +40,17 @@ class SequencePredictor(torch.nn.Module):
         self.ensemble_params = None
 
         if config.z_dim is not None and config.z_dim > 0:
-            if self.z_discrete:
-                self.prior_model = DiscreteNet(
-                    input_dim=repr_dim,
-                    arch=config.prior_arch,
-                    z_discrete_dim=config.z_discrete_dim,
-                    z_discrete_dists=config.z_discrete_dists,
-                    min_std=config.z_min_std,
-                )
-                self.posterior_model = DiscreteNet(
-                    input_dim=config.posterior_input_dim,
-                    arch=config.posterior_arch,
-                    z_discrete_dim=config.z_discrete_dim,
-                    z_discrete_dists=config.z_discrete_dists,
-                    min_std=config.z_min_std,
-                )
-                self.latent_merger = nn.Linear(
-                    config.z_discrete_dim * config.z_discrete_dists, config.z_dim
-                )
-
+            self.prior_model = PriorContinuous(
+                input_dim=repr_dim,
+                arch=config.prior_arch,
+                z_dim=config.z_dim,
+                min_std=config.z_min_std,
+            )
+            if config.posterior_arch == 'id':
+                raise NotImplementedError("Identity posterior not implemented yet")
+            elif config.posterior_arch == 'analytical':
+                raise NotImplementedError("Analytical posterior not implemented yet")
             else:
-                self.prior_model = PriorContinuous(
-                    input_dim=repr_dim,
-                    arch=config.prior_arch,
-                    z_dim=config.z_dim,
-                    min_std=config.z_min_std,
-                )
                 self.posterior_model = PosteriorContinuous(
                     input_dim=(
                         repr_dim * 2

@@ -145,6 +145,7 @@ class PosteriorContinuous(torch.nn.Module):
         self.min_std = min_std
         self.posterior_input_type = posterior_input_type
         self.arch = arch
+        self.mu_ln = nn.LayerNorm(self.z_dim)
 
         if arch == "conv":
             self.posterior_net = build_conv(
@@ -174,6 +175,7 @@ class PosteriorContinuous(torch.nn.Module):
             action: (bs, chunk_size, action_dim)
         """
         mu, std = self.posterior_net(input).chunk(2, dim=-1)
+        mu = self.mu_ln(mu)
         std = F.softplus(std) + self.min_std
         return mu, std
 

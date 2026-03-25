@@ -137,7 +137,7 @@ class TrainConfig(ConfigBase):
             self.data.quick_debug = True
 
             # D4RL stuff
-            levels = ['easy', 'medium', 'hard']
+            levels = ["easy", "medium", "hard"]
             self.data.d4rl_config.quick_debug = True
             self.data.d4rl_config.num_workers = 1
             self.eval_cfg.d4rl_planning.n_envs = 5
@@ -212,6 +212,7 @@ class TrainConfig(ConfigBase):
             if os.path.exists(test_dir):
                 shutil.rmtree(test_dir)
 
+
 class Trainer:
     def __init__(self, config: TrainConfig):
         self.config = config
@@ -244,41 +245,50 @@ class Trainer:
 
         # infer obs shape
         sample_data = next(iter(self.ds))
-        
+
         load_l1 = getattr(self.ds.dataset, "load_l1", True)
-        
+
         if load_l1:
             states = sample_data.states
-            proprio_pos = sample_data.proprio_pos if hasattr(sample_data, "proprio_pos") else None
-            proprio_vel = sample_data.proprio_vel if hasattr(sample_data, "proprio_vel") else None
-            locations = sample_data.locations if hasattr(sample_data, "locations") else None
+            proprio_pos = (
+                sample_data.proprio_pos if hasattr(sample_data, "proprio_pos") else None
+            )
+            proprio_vel = (
+                sample_data.proprio_vel if hasattr(sample_data, "proprio_vel") else None
+            )
+            locations = (
+                sample_data.locations if hasattr(sample_data, "locations") else None
+            )
         else:
             states = sample_data.l2_states
-            proprio_pos = sample_data.l2_proprio_pos if hasattr(sample_data, "l2_proprio_pos") else None
-            proprio_vel = sample_data.l2_proprio_vel if hasattr(sample_data, "l2_proprio_vel") else None
-            locations = sample_data.l2_locations if hasattr(sample_data, "l2_locations") else None
-          
+            proprio_pos = (
+                sample_data.l2_proprio_pos
+                if hasattr(sample_data, "l2_proprio_pos")
+                else None
+            )
+            proprio_vel = (
+                sample_data.l2_proprio_vel
+                if hasattr(sample_data, "l2_proprio_vel")
+                else None
+            )
+            locations = (
+                sample_data.l2_locations
+                if hasattr(sample_data, "l2_locations")
+                else None
+            )
+
         input_dim = states.shape[2:]
         print("Inferred input_dim:", input_dim)
         if len(input_dim) == 1:
             input_dim = input_dim[0]
 
-        ppos_dim = (
-            proprio_pos.shape[-1]
-            if proprio_pos is not None
-            else 0
-        )
+        ppos_dim = proprio_pos.shape[-1] if proprio_pos is not None else 0
         pvel_dim = (
             proprio_vel.shape[-1]
-            if proprio_vel is not None
-            and sample_data.proprio_vel is not None
+            if proprio_vel is not None and sample_data.proprio_vel is not None
             else 0
         )
-        loc_dim = (
-            locations.shape[-1]
-            if locations is not None
-            else 0
-        )  
+        loc_dim = locations.shape[-1] if locations is not None else 0
 
         # create model
         self.model = HJEPA(
@@ -323,31 +333,15 @@ class Trainer:
                 for p in m.parameters():
                     p.requires_grad = False
 
-        print(self.model)
-        self.n_parameters = sum(
-            p.numel() for p in self.model.parameters() if p.requires_grad
+        print(
+            "number of params in level 1:",
+            utils.count_trainable_parameters(self.model.level1),
         )
-        print("number of params:", self.n_parameters)
-
-        l1_predictor_n_parameters = sum(
-            p.numel()
-            for p in self.model.level1.predictor.parameters()
-            if p.requires_grad
-        )
-        print("number of l1 predictor params:", l1_predictor_n_parameters)
-
-        l1_backbone_n_parameters = sum(
-            p.numel()
-            for p in self.model.level1.backbone.parameters()
-            if p.requires_grad
-        )
-        print("number of l1 backbone params:", l1_backbone_n_parameters)
-
-        Logger.run().log_summary(
-            {
-                "n_params": self.n_parameters,
-            }
-        )
+        if self.model.level2 is not None:
+            print(
+                "number of params in level 2:",
+                utils.count_trainable_parameters(self.model.level2),
+            )
 
         self.metric_tracker = MetricTracker(window_size=100)
 

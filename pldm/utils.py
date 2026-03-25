@@ -15,6 +15,10 @@ def seed_everything(seed):
     random.seed(seed)
 
 
+def count_trainable_parameters(module: torch.nn.Module) -> int:
+    return sum(p.numel() for p in module.parameters() if p.requires_grad)
+
+
 def pick_latest_model(path):
     # Finds the model in path with the largeest epoch value
     paths = list(Path(path).glob("epoch=*.ckpt"))

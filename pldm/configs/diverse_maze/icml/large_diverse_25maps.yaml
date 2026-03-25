@@ -137,7 +137,7 @@ eval_cfg:
     n_envs: 85
     n_envs_batch_size: 20
     n_steps: 192
-    levels: "easy,medium"
+    levels: "easy,medium,hard"
     easy:
       n_steps: 500
       n_envs: 40

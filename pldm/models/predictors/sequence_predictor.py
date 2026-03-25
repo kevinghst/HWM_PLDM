@@ -71,7 +71,6 @@ class SequencePredictor(torch.nn.Module):
                     min_std=config.z_min_std,
                     posterior_input_type=config.posterior_input_type,
                 )
-                breakpoint()
         else:
             self.prior_model = None
             self.posterior_model = None

@@ -193,14 +193,45 @@ class IdLn(torch.nn.Module):
 
         self.input_dim = input_dim
         self.min_std = min_std
-        self.mu_ln = nn.LayerNorm(self.input_dim)
 
     def sample(self, stats):
         mu, var = stats
         return torch.randn_like(mu) * var + mu
 
     def forward(self, input: torch.Tensor):
-        mu = self.mu_ln(input)
+        mu = input
+        std = torch.ones_like(mu) * self.min_std
+        return mu, std
+
+
+class AnalyticalPosterior(torch.nn.Module):
+    def __init__(self, min_std: float):
+        super().__init__()
+        self.min_std = min_std
+
+    def sample(self, stats):
+        mu, var = stats
+        return torch.randn_like(mu) * var + mu
+
+    def forward(self, actions: torch.Tensor):
+        if actions.ndim != 3:
+            raise ValueError(
+                f"AnalyticalPosterior expected actions shape (bs, t, 2), got {tuple(actions.shape)}"
+            )
+        if actions.shape[-1] != 2:
+            raise ValueError(
+                f"AnalyticalPosterior expected primitive action dim 2, got {actions.shape[-1]}"
+            )
+
+        bs, t, _ = actions.shape
+
+        action_sum = actions.sum(dim=1)
+        weights = torch.arange(
+            t - 1, -1, -1, device=actions.device, dtype=actions.dtype
+        )
+        weighted_action_sum = (actions * weights.view(1, t, 1)).sum(dim=1)
+
+        mu = torch.cat([action_sum, weighted_action_sum], dim=-1)
         std = torch.ones_like(mu) * self.min_std
         return mu, std
 

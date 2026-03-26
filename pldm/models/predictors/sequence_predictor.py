@@ -6,6 +6,7 @@ from torch import nn
 from pldm.models.misc import (
     PriorContinuous,
     PosteriorContinuous,
+    AnalyticalPosterior,
     IdLn,
     DiscreteNet,
 )
@@ -58,7 +59,9 @@ class SequencePredictor(torch.nn.Module):
                     min_std=config.z_min_std,
                 )
             elif config.posterior_arch == 'analytical':
-                raise NotImplementedError("Analytical posterior not implemented yet")
+                self.posterior_model = AnalyticalPosterior(
+                    min_std=config.z_min_std,
+                )
             else:
                 self.posterior_model = PosteriorContinuous(
                     input_dim=(
@@ -265,10 +268,11 @@ class SequencePredictor(torch.nn.Module):
                         )
                     elif self.posterior_input_type == "actions":
                         posterior_input = actions[i]  # (bs, chunk_size, action_dim)
-                        # flatten to (bs, chunk_size * action_dim)
-                        posterior_input = posterior_input.view(
-                            posterior_input.shape[0], -1
-                        )
+                        if self.config.posterior_arch != "analytical":
+                            # flatten to (bs, chunk_size * action_dim)
+                            posterior_input = posterior_input.view(
+                                posterior_input.shape[0], -1
+                            )
 
                     posterior_stats = self.posterior_model(posterior_input)
                     # Deterministic: use only the mean/mode
@@ -287,7 +291,8 @@ class SequencePredictor(torch.nn.Module):
                     predictor_input.append(prior)
             elif self.posterior_model is not None and actions is not None:
                 posterior_input = actions[i]  # (bs, chunk_size, action_dim)
-                posterior_input = posterior_input.view(posterior_input.shape[0], -1)
+                if self.config.posterior_arch != "analytical":
+                    posterior_input = posterior_input.view(posterior_input.shape[0], -1)
 
                 posterior_stats = self.posterior_model(posterior_input)
                 posterior_mu, posterior_var = posterior_stats

@@ -285,6 +285,7 @@ class MPPIPlanner:
         projected_cost: bool = False,
         cost_entity: str = "obs_component",
         cost_dim_range: str = "0:99999999",
+        use_latent_mean_std: bool = False,
     ):
         device = next(model.parameters()).device
 
@@ -299,14 +300,40 @@ class MPPIPlanner:
         self.action_normalizer = action_normalizer
         self.prober = prober
         self.latent_actions = latent_actions
+        self.use_latent_mean_std = use_latent_mean_std
 
-        noise_sigma = torch.diag(
-            torch.tensor(
-                [config.noise_sigma] * model.predictor.action_dim,
-                dtype=torch.float32,
-                device=device,
+        action_dim = model.predictor.action_dim
+        noise_mu = None
+        u_init = None
+
+        if (
+            self.use_latent_mean_std
+            and
+            self.latent_actions
+            and hasattr(normalizer, "l2_latent_mean")
+            and hasattr(normalizer, "l2_latent_std")
+            and normalizer.l2_latent_mean is not None
+            and normalizer.l2_latent_std is not None
+            and normalizer.l2_latent_mean.numel() == action_dim
+            and normalizer.l2_latent_std.numel() == action_dim
+        ):
+            noise_mu = normalizer.l2_latent_mean.to(device=device, dtype=torch.float32)
+            # Use empirical std as per-dim exploration, scaled by config.noise_sigma.
+            per_dim_std = (
+                normalizer.l2_latent_std.to(device=device, dtype=torch.float32)
+                * float(config.noise_sigma)
+            ).clamp_min(1e-4)
+            noise_sigma = torch.diag(per_dim_std.pow(2))
+            u_init = noise_mu
+        else:
+            noise_sigma = torch.diag(
+                torch.tensor(
+                    [config.noise_sigma] * action_dim,
+                    dtype=torch.float32,
+                    device=device,
+                )
             )
-        )
+
         self.objective = objective
 
         self.mppi_costs = [
@@ -330,6 +357,8 @@ class MPPIPlanner:
                 running_cost=self.mppi_costs[i],
                 nx=nx,
                 noise_sigma=noise_sigma,
+                noise_mu=noise_mu,
+                u_init=u_init,
                 proprio_dim=model.backbone.output_proprio_dim,
                 num_samples=config.num_samples,
                 lambda_=config.lambda_,

@@ -77,6 +77,8 @@ class Normalizer:
         self.pixel_mapper = pixel_mapper
         self.l2_latent_min_bounds = None
         self.l2_latent_max_bounds = None
+        self.l2_latent_mean = None
+        self.l2_latent_std = None
 
     @staticmethod
     def _has_attr(sample, attr):
@@ -499,10 +501,15 @@ def compute_l2_latent_bounds(
                         # action chunk for this step: [bs, chunk_size, action_dim]
                         l2_action_chunk = l2_actions_normalized[:, chunk_idx, :, :]
 
-                        # L2 posterior expects flattened action chunks
-                        posterior_input = l2_action_chunk.reshape(
-                            l2_action_chunk.shape[0], -1
-                        )
+                        posterior_arch = config.hjepa.level2.predictor.posterior_arch
+                        if posterior_arch == "analytical":
+                            # Analytical posterior expects unflattened primitive actions.
+                            posterior_input = l2_action_chunk
+                        else:
+                            # Other posterior variants expect flattened action chunks.
+                            posterior_input = l2_action_chunk.reshape(
+                                l2_action_chunk.shape[0], -1
+                            )
 
                         posterior_stats = model.level2.predictor.posterior_model(
                             posterior_input
@@ -534,13 +541,19 @@ def compute_l2_latent_bounds(
 
     min_bounds_tensor = torch.tensor(min_bounds, dtype=torch.float32)
     max_bounds_tensor = torch.tensor(max_bounds, dtype=torch.float32)
+    latent_mean_tensor = all_latents.mean(dim=0).to(torch.float32)
+    latent_std_tensor = all_latents.std(dim=0).to(torch.float32)
 
     normalizer.l2_latent_min_bounds = min_bounds_tensor
     normalizer.l2_latent_max_bounds = max_bounds_tensor
+    normalizer.l2_latent_mean = latent_mean_tensor
+    normalizer.l2_latent_std = latent_std_tensor
 
     return {
         "min_bounds": min_bounds_tensor,
         "max_bounds": max_bounds_tensor,
+        "mean": latent_mean_tensor,
+        "std": latent_std_tensor,
         "z_dim": z_dim,
         "n_samples": all_latents.shape[0],
         "percentile": percentile,

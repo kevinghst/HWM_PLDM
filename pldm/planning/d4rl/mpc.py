@@ -34,6 +34,7 @@ class MazeMPCEvaluator(MPCEvaluator):
         fix_start: bool = False,
         prefix: str = "d4rl_",
         quick_debug: bool = False,
+        l2_use_latent_mean_std: bool = False,
     ):
         super().__init__(
             config=config,
@@ -43,6 +44,7 @@ class MazeMPCEvaluator(MPCEvaluator):
             quick_debug=quick_debug,
             prefix=prefix,
             pixel_mapper=pixel_mapper,
+            l2_use_latent_mean_std=l2_use_latent_mean_std,
         )
 
         level_cfg = getattr(config, config.level)

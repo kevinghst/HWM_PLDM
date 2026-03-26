@@ -28,6 +28,7 @@ class MPCEvaluator(ABC):
         image_based=True,
         hierarchical=False,
         env_name=None,
+        l2_use_latent_mean_std: bool = False,
     ):
         self.config = config
         self.model = model
@@ -39,6 +40,7 @@ class MPCEvaluator(ABC):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.image_based = image_based
         self.hierarchical = hierarchical
+        self.l2_use_latent_mean_std = l2_use_latent_mean_std
 
     def close(self):
         pass
@@ -146,6 +148,7 @@ class MPCEvaluator(ABC):
                 projected_cost=config.projected_cost,
                 cost_entity=config.cost_entity,
                 cost_dim_range=config.cost_dim_range,
+                use_latent_mean_std=self.l2_use_latent_mean_std,
             )
         else:
             raise NotImplementedError(f"Unknown planner type {config.planner_type}")

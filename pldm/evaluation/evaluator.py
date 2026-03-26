@@ -28,6 +28,7 @@ class EvalConfig(ConfigBase):
     h_d4rl_planning: HierarchicalD4RLMPCConfig = HierarchicalD4RLMPCConfig()
     manispace_planning: MPCConfig = MPCConfig()
     l2_latent_bounds_percentile: float = 0
+    l2_use_latent_mean_std: bool = False
 
     def __post_init__(self):
         self.d4rl_planning.env_name = self.env_name
@@ -236,6 +237,7 @@ class Evaluator:
                 prober=self.probers["locations"],
                 prefix=f"d4rl_{level}",
                 quick_debug=self.quick_debug,
+                l2_use_latent_mean_std=self.config.l2_use_latent_mean_std,
             )
         else:
             raise NotImplementedError
@@ -314,6 +316,7 @@ class Evaluator:
                 ),
                 prefix=f"l2_d4rl_{level}",
                 quick_debug=self.quick_debug,
+                l2_use_latent_mean_std=self.config.l2_use_latent_mean_std,
             )
 
         return planning_evaluator

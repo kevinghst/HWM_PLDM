@@ -28,6 +28,7 @@ class HierarchicalD4RLMPCEvaluator(MazeMPCEvaluator):
         prober_l2: Optional[torch.nn.Module] = None,
         prefix: str = "d4rl_h_",
         quick_debug: bool = False,
+        l2_use_latent_mean_std: bool = False,
     ):
         super().__init__(
             config=config,
@@ -38,6 +39,7 @@ class HierarchicalD4RLMPCEvaluator(MazeMPCEvaluator):
             prober_l2=prober_l2,
             prefix=prefix,
             quick_debug=quick_debug,
+            l2_use_latent_mean_std=l2_use_latent_mean_std,
         )
 
         self.hierarchical = True

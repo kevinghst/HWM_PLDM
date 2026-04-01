@@ -1,16 +1,25 @@
 
 # Hierarchical Planning with Latent World Models
 
-
+<strong>HWM unlocks a new capability for zero-shot world-model planning: solving non-greedy, long-horizon tasks from visual inputs.</strong>
 
 <p align="center">
   <img src="assets/figure_1a.png" alt="Figure 1a" />
 </p>
 <p>
-  <strong>Hierarchical planning in latent space.</strong> A high-level planner optimizes macro-actions using a long-horizon world model to reach the goal; the first predicted latent state serves as a subgoal for a low-level planner, which optimizes primitive actions with a short-horizon world model. Solid borders denote ground-truth observations; others are decoder reconstructions shown for interpretability only.
+  <strong>Hierarchical planning in latent space.</strong> A high-level planner optimizes macro-actions using a long-horizon world model to reach the goal; the first predicted latent state serves as a subgoal for a low-level planner, which optimizes primitive actions with a short-horizon world model. 
 </p>
 
-<br />
+<p align="center">
+  <img src="assets/figure_1b.png" alt="Figure 1b" />
+</p>
+<p>
+Hierarchical planning improves success on non-greedy, long-horizon tasks across multiple latent world models.
+</p>
+
+<em>Disclaimer: While HWM is evaluated across multiple world models (VJEPA2, DINO-WM, and PLDM), this repository provides a minimal implementation on PLDM (Diverse Maze).</em>
+
+## Example executions (Diverse Maze)
 
 <p align="center">
   <img src="assets/episode_3.gif" alt="Episode 3" />

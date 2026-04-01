@@ -1,6 +1,17 @@
 
 # Hierarchical Planning with Latent World Models
 
+
+
+<p align="center">
+  <img src="assets/figure_1a.png" alt="Figure 1a" />
+</p>
+<p>
+  <strong>Hierarchical planning in latent space.</strong> A high-level planner optimizes macro-actions using a long-horizon world model to reach the goal; the first predicted latent state serves as a subgoal for a low-level planner, which optimizes primitive actions with a short-horizon world model. Solid borders denote ground-truth observations; others are decoder reconstructions shown for interpretability only.
+</p>
+
+<br />
+
 <p align="center">
   <img src="assets/episode_3.gif" alt="Episode 3" />
 </p>
@@ -8,12 +19,6 @@
 <p align="center">
   <img src="assets/episode_17.gif" alt="Episode 17" />
 </p>
-
-<p align="center">
-  <img src="assets/figure_1a.png" alt="Figure 1a" />
-</p>
-
-
 
 
 # Repo Setup

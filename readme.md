@@ -1,6 +1,8 @@
 
 # Hierarchical Planning with Latent World Models
 
+[Paper](#) | [Website](https://kevinghst.github.io/HWM/)
+
 <strong>HWM unlocks a new capability for zero-shot world-model planning: solving non-greedy, long-horizon tasks from visual inputs.</strong>
 
 <p align="center">

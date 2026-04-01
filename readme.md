@@ -1,15 +1,9 @@
 
 # Hierarchical Planning with Latent World Models
 
-<video width="640" height="480" controls>
-  <source src="assets/episode_3.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Episode 3](assets/episode_3.gif)
 
-<video width="640" height="480" controls>
-  <source src="assets/episode_17.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Episode 17](assets/episode_17.gif)
 
 # Repo Setup
 

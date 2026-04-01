@@ -1,3 +1,16 @@
+
+# Hierarchical Planning with Latent World Models
+
+<video width="640" height="480" controls>
+  <source src="assets/episode_3.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<video width="640" height="480" controls>
+  <source src="assets/episode_17.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 # Repo Setup
 
 Tested on python 3.9, CUDA 13.0

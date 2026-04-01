@@ -1,9 +1,20 @@
 
 # Hierarchical Planning with Latent World Models
 
-![Episode 3](assets/episode_3.gif)
+<p align="center">
+  <img src="assets/episode_3.gif" alt="Episode 3" />
+</p>
 
-![Episode 17](assets/episode_17.gif)
+<p align="center">
+  <img src="assets/episode_17.gif" alt="Episode 17" />
+</p>
+
+<p align="center">
+  <img src="assets/figure_1a.png" alt="Figure 1a" />
+</p>
+
+
+
 
 # Repo Setup
 

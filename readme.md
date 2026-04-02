@@ -1,9 +1,17 @@
 
-# Hierarchical Planning with Latent World Models
+<h1 align="center"><em>Hierarchical Planning with Latent World Models</em></h1>
+
+[Wancong Zhang](https://kevinghst.github.io), [Basile Terver](https://scholar.google.com/citations?user=qUB-__0AAAAJ&hl=en), [Artem Zholus](https://artemzholus.github.io), [Soham Chitnis](https://soham-chitnis10.github.io), [Harsh Sutaria](http://harsh-sutariya.github.io/),
+
+[Mido Assran](https://www.midoassran.ca), [Amir Bar](https://www.amirbar.net), [Randall Balestriero](https://randallbalestriero.github.io), [Adrien Bardes](https://scholar.google.com/citations?user=SvRU8F8AAAAJ&hl=en), [Yann LeCun](https://yann.lecun.org/ex/)\*, [Nicolas Ballas](https://scholar.google.com/citations?user=euUV4iUAAAAJ&hl=en)\*
+
 
 [Paper](#) | [Website](https://kevinghst.github.io/HWM/)
 
-<strong>HWM unlocks a new capability for zero-shot world-model planning: solving non-greedy, long-horizon tasks from visual inputs.</strong>
+
+# Overview
+
+<strong>🔥 HWM unlocks a new capability for zero-shot world-model planning: solving non-greedy, long-horizon tasks from visual inputs.</strong>
 
 <p align="center">
   <img src="assets/figure_1a.png" alt="Figure 1a" />

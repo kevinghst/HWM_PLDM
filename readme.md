@@ -1,12 +1,16 @@
 
 <h1 align="center"><em>Hierarchical Planning with Latent World Models</em></h1>
 
-[Wancong Zhang](https://kevinghst.github.io), [Basile Terver](https://scholar.google.com/citations?user=qUB-__0AAAAJ&hl=en), [Artem Zholus](https://artemzholus.github.io), [Soham Chitnis](https://soham-chitnis10.github.io), [Harsh Sutaria](http://harsh-sutariya.github.io/),
+<p align="center">
+  📄 <a href="#">Paper</a> | 🌐 <a href="https://kevinghst.github.io/HWM/">Website</a>
+</p>
 
-[Mido Assran](https://www.midoassran.ca), [Amir Bar](https://www.amirbar.net), [Randall Balestriero](https://randallbalestriero.github.io), [Adrien Bardes](https://scholar.google.com/citations?user=SvRU8F8AAAAJ&hl=en), [Yann LeCun](https://yann.lecun.org/ex/)\*, [Nicolas Ballas](https://scholar.google.com/citations?user=euUV4iUAAAAJ&hl=en)\*
+<p align="center">
+  <a href="https://kevinghst.github.io">Wancong Zhang</a>, <a href="https://scholar.google.com/citations?user=qUB-__0AAAAJ&hl=en">Basile Terver</a>, <a href="https://artemzholus.github.io">Artem Zholus</a>, <a href="https://soham-chitnis10.github.io">Soham Chitnis</a>, <a href="http://harsh-sutariya.github.io/">Harsh Sutaria</a>,<br/>
+  <a href="https://www.midoassran.ca">Mido Assran</a>, <a href="https://www.amirbar.net">Amir Bar</a>, <a href="https://randallbalestriero.github.io">Randall Balestriero</a>, <a href="https://scholar.google.com/citations?user=SvRU8F8AAAAJ&hl=en">Adrien Bardes</a>, <a href="https://yann.lecun.org/ex/">Yann LeCun</a>\*, <a href="https://scholar.google.com/citations?user=euUV4iUAAAAJ&hl=en">Nicolas Ballas</a>\*
+</p>
 
 
-[Paper](#) | [Website](https://kevinghst.github.io/HWM/)
 
 
 # Overview

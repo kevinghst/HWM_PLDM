@@ -10,7 +10,7 @@ from huggingface_hub import hf_hub_download
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download a checkpoint from HF Hub into ./pretrained"
+        description="Download one or more checkpoints from HF Hub into ./pretrained"
     )
     parser.add_argument(
         "--repo-id",
@@ -21,6 +21,11 @@ def parse_args() -> argparse.Namespace:
         "--filename",
         default="3-9-1-seed248_epoch=3_sample_step=15465472.ckpt",
         help="Checkpoint filename in the HF repo",
+    )
+    parser.add_argument(
+        "--extra-filename",
+        default="load_from_l1248-seed248_epoch=5_sample_step=10789632.ckpt",
+        help="Additional checkpoint filename in the HF repo",
     )
     parser.add_argument(
         "--repo-type",
@@ -48,19 +53,22 @@ def main() -> None:
     out_dir = Path(args.out_dir) if args.out_dir else repo_root / "pretrained"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    cached_path = hf_hub_download(
-        repo_id=args.repo_id,
-        filename=args.filename,
-        repo_type=args.repo_type,
-        revision=args.revision,
-    )
+    filenames = [args.filename, args.extra_filename]
 
-    dst_path = out_dir / Path(args.filename).name
-    if Path(cached_path).resolve() != dst_path.resolve():
-        shutil.copy2(cached_path, dst_path)
+    for filename in dict.fromkeys(filenames):
+        cached_path = hf_hub_download(
+            repo_id=args.repo_id,
+            filename=filename,
+            repo_type=args.repo_type,
+            revision=args.revision,
+        )
 
-    print(f"Downloaded: {args.repo_id}/{args.filename}")
-    print(f"Saved to: {dst_path}")
+        dst_path = out_dir / Path(filename).name
+        if Path(cached_path).resolve() != dst_path.resolve():
+            shutil.copy2(cached_path, dst_path)
+
+        print(f"Downloaded: {args.repo_id}/{filename}")
+        print(f"Saved to: {dst_path}")
 
 
 if __name__ == "__main__":

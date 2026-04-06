@@ -2,7 +2,7 @@
 <h1 align="center"><em>Hierarchical Planning with Latent World Models</em></h1>
 
 <p align="center">
-  📄 <a href="#">Paper</a> | 🌐 <a href="https://kevinghst.github.io/HWM/">Website</a>
+  📄 <a href="https://arxiv.org/pdf/2604.03208">Paper</a> | 🌐 <a href="https://kevinghst.github.io/HWM/">Website</a>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 - Demonstrates **long-horizon planning** in Diverse Maze (PLDM)
 - Achieves higher success and lower planning cost vs flat planners
 
-<em>Disclaimer: While HWM is evaluated across multiple world models (VJEPA2, DINO-WM, and PLDM), this repository provides a minimal implementation on PLDM (Diverse Maze). For full results across additional world models and tasks, see the [project page](https://kevinghst.github.io/HWM/) and [paper]().</em>
+<em>Disclaimer: While HWM is evaluated across multiple world models (VJEPA2, DINO-WM, and PLDM), this repository provides a minimal implementation on PLDM (Diverse Maze). For full results across additional world models and tasks, see the [project page](https://kevinghst.github.io/HWM/) and [paper](https://arxiv.org/pdf/2604.03208).</em>
 
 ---
 

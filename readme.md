@@ -1,15 +1,6 @@
 
 <h1 align="center"><em>Hierarchical Planning with Latent World Models</em></h1>
 
-<p align="center">
-  📄 <a href="https://arxiv.org/pdf/2604.03208">Paper</a> | 🌐 <a href="https://kevinghst.github.io/HWM/">Website</a>
-</p>
-
-<p align="center">
-  <a href="https://kevinghst.github.io">Wancong Zhang</a>, <a href="https://scholar.google.com/citations?user=qUB-__0AAAAJ&hl=en">Basile Terver</a>, <a href="https://artemzholus.github.io">Artem Zholus</a>, <a href="https://soham-chitnis10.github.io">Soham Chitnis</a>, <a href="http://harsh-sutariya.github.io/">Harsh Sutaria</a>,<br/>
-  <a href="https://www.midoassran.ca">Mido Assran</a>, <a href="https://www.amirbar.net">Amir Bar</a>, <a href="https://randallbalestriero.github.io">Randall Balestriero</a>, <a href="https://scholar.google.com/citations?user=SvRU8F8AAAAJ&hl=en">Adrien Bardes</a>, <a href="https://yann.lecun.org/ex/">Yann LeCun</a>*, <a href="https://scholar.google.com/citations?user=euUV4iUAAAAJ&hl=en">Nicolas Ballas</a>*
-</p>
-
 
 <p align="center">
   <img src="assets/episode_3.gif" alt="Episode 3" />
@@ -26,7 +17,7 @@
 - Demonstrates **long-horizon planning** in Diverse Maze (PLDM)
 - Achieves higher success and lower planning cost vs flat planners
 
-<em>Disclaimer: While HWM is evaluated across multiple world models (VJEPA2, DINO-WM, and PLDM), this repository provides a minimal implementation on PLDM (Diverse Maze). For full results across additional world models and tasks, see the [project page](https://kevinghst.github.io/HWM/) and [paper](https://arxiv.org/pdf/2604.03208).</em>
+<em>Disclaimer: We release source code for the PLDM (diverse-maze) experiments in this repository. The VJEPA2-AC and DINO-WM implementations were developed at an external institution and are pending public-release approval; they will be released upon approval. The released PLDM code is sufficient to reproduce all maze results in Table 3 and Figure 5b.</em>
 
 ---
 
@@ -52,8 +43,6 @@ Figure 1b: Hierarchical planning improves success on non-greedy, long-horizon ta
 Tested on python 3.9, CUDA 13.0
 
 ```
-git clone git@github.com:kevinghst/HWM_PLDM.git
-
 cd HWM_PLDM
 
 conda create -n pldm python=3.9 -y

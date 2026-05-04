@@ -19,24 +19,6 @@
 
 <em>Disclaimer: We release source code for the PLDM (diverse-maze) experiments in this repository. The VJEPA2-AC and DINO-WM implementations were developed at an external institution and are pending public-release approval; they will be released upon approval. The released PLDM code is sufficient to reproduce all maze results in Table 3 and Figure 5b.</em>
 
----
-
-<p>
-  Figure 1a: <strong>Hierarchical planning in latent space.</strong> A high-level planner optimizes macro-actions using a long-horizon world model to reach the goal; the first predicted latent state serves as a subgoal for a low-level planner, which optimizes primitive actions with a short-horizon world model. 
-</p>
-<p align="center">
-  <img src="assets/figure_1a.png" alt="Figure 1a" />
-</p>
-
-
-<p>
-Figure 1b: Hierarchical planning improves success on non-greedy, long-horizon tasks across multiple latent world models.
-</p>
-<p align="center">
-  <img src="assets/figure_1b.png" alt="Figure 1b" />
-</p>
-
-
 
 # Repo Setup
 

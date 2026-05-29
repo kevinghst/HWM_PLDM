@@ -66,15 +66,17 @@ pip install -e .
 ```
 
 ## MuJoCo 2.1 for d4rl + mujoco-py
+```
 mkdir -p "$HOME/.mujoco"
 cd "$HOME/.mujoco"
 wget https://mujoco.org/download/mujoco210-linux-x86_64.tar.gz
-tar -xzf mujoco210-linux-x86_64.tar.gz
+tar xzf mujoco210-linux-x86_64.tar.gz
 
 ## Runtime env
 export MUJOCO_GL=egl
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/.mujoco/mujoco210/bin"
 export D4RL_SUPPRESS_IMPORT_ERROR=1
+```
 
 # Run Experiments
 

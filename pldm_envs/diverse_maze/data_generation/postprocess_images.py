@@ -152,7 +152,13 @@ def main():
     if BAD_EPISODES:
         torch.save(BAD_EPISODES, f"{args.save_path}/bad_episodes.pt")
     else:
-        np.save(f"{args.save_path}/images.npy", zarr_dataset)
+        npy_path = f"{args.save_path}/images.npy"
+        npy_mmap = np.lib.format.open_memmap(npy_path, mode='w+', dtype=np.uint8, shape=zarr_dataset.shape)
+        chunk_size = 10000
+        for i in range(0, zarr_dataset.shape[0], chunk_size):
+            npy_mmap[i:i+chunk_size] = zarr_dataset[i:i+chunk_size]
+        npy_mmap.flush()
+        del npy_mmap
 
 
 if __name__ == "__main__":

@@ -15,8 +15,17 @@ DATA_PATHS=(
 )
 
 # render the datasets. save images as numpy
+WORKERS_NUM=20
+
 for DATA_PATH in "${DATA_PATHS[@]}"; do
-    python "${PROJECT_ROOT}/pldm_envs/diverse_maze/data_generation/render_data.py" --data_path "$DATA_PATH"
+    PIDS=()
+    for WORKER_ID in $(seq 0 $((WORKERS_NUM - 1))); do
+        python "${PROJECT_ROOT}/pldm_envs/diverse_maze/data_generation/render_data.py" --data_path "$DATA_PATH" --workers_num $WORKERS_NUM --worker_id $WORKER_ID &
+        PIDS+=($!)
+    done
+    for PID in "${PIDS[@]}"; do
+        wait $PID
+    done
     python "${PROJECT_ROOT}/pldm_envs/diverse_maze/data_generation/postprocess_images.py" --data_path "$DATA_PATH"
 done
 
